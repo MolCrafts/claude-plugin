@@ -1,6 +1,6 @@
 ---
 description: Cut a unified release of the molcrafts marketplace. All plugins share one version. Bumps every plugin's plugin.json + the matching marketplace.json entries together, runs /mol-plugin:check, gates the commit through /mol:ship commit, and prepares one local commit + one local tag named v<X.Y.Z>. Does not push — pair with /mol:tag to push the tag to upstream and trigger GitHub Actions release. Writes plugin.json files and marketplace.json only — never a CHANGELOG.
-argument-hint: "<bump>   (bump = patch|minor|major)"
+argument-hint: "<patch | minor | major>"
 ---
 
 # /mol-plugin:release — Plugin Release

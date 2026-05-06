@@ -1,6 +1,6 @@
 ---
 description: Scaffold a new skill inside one of the molcrafts plugins (mol, mol-agent, mol-plugin). Creates the skill directory, a SKILL.md with the project's frontmatter shape (description, argument-hint), and a stub procedure. Writes only inside plugins/<plugin>/skills/<name>/.
-argument-hint: "<plugin>:<skill-name> [\"one-line description\"]"
+argument-hint: "<plugin:skill-name> [<one-line description>]"
 ---
 
 # /mol-plugin:new-skill — Skill Scaffold
