@@ -84,7 +84,7 @@ reach for it, and a one-line example.
 
 | Skill | What | When | Example |
 |---|---|---|---|
-| `/mol:web <slug>` | Frontend runtime evaluator. Reads `<slug>.acceptance.md`, picks `type: ui_runtime` criteria, optionally auto-starts the dev server via `mol_project.dev.command`, drives whatever Playwright MCP / browser-automation plugin you installed, returns per-criterion verdicts + screenshots / console / network artifacts. Self-skips when no Playwright MCP is reachable. | After `/mol:impl` finishes a UI feature with `ui_runtime` criteria. | `/mol:web spec-tree-view` |
+| `/mol:web <slug>` | Frontend runtime evaluator. Reads `<slug>.acceptance.md`, picks `type: ui_runtime` criteria, starts the dev server via `mol_project.dev.command` and parses the URL from its ready banner, drives whatever Playwright MCP / browser-automation plugin you installed, returns per-criterion verdicts + screenshots / console / network artifacts. Self-skips when no Playwright MCP is reachable. | After `/mol:impl` finishes a UI feature with `ui_runtime` criteria. | `/mol:web spec-tree-view` |
 
 ### 5 — Documentation & knowledge
 
