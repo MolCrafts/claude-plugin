@@ -5,23 +5,14 @@ argument-hint: "[one-sentence purpose, optional]"
 
 # /mol-agent:bootstrap — Agent Harness Bootstrap
 
-Use this skill to **initialize or improve** the agent-facing setup of a
-repository.
+Initialize or improve a repository's agent-facing setup. Separate the
+four kinds of content (public docs / internal agent context / runtime
+/ router) and install only the minimum guardrails this repo actually
+needs — not a fixed template.
 
-The goal is not to impose a rigid template. The goal is to make the
-repository easier for future agents to understand, modify, evaluate, and
-continue working on — by separating the four kinds of content
-(public docs / internal agent context / runtime / router) and installing
-only the minimum guardrails this particular repo actually needs.
-
-> `/mol-agent:bootstrap` is **not a template copier**. It is a repository-
-> specific agent-harness initializer that discovers local conventions
-> and installs only the minimum guardrails needed for future agents to
-> work safely.
-
-This skill does not require an existing `mol_project:` frontmatter — it
-is the tool that creates CLAUDE.md and (optionally) populates that
-frontmatter. It works on any repository, mol-family or otherwise.
+This skill does not require an existing `mol_project:` frontmatter; it
+is the tool that creates CLAUDE.md and optionally populates that
+frontmatter, on any repository.
 
 ---
 

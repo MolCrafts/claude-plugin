@@ -22,19 +22,12 @@ feature and exists to inform planning, not to drive runtime behavior.
 
 ## Why this skill exists
 
-`/mol:spec` runs into a visibility ceiling once a project has more
-than a handful of modules: spec drafting can't see what's already
-implemented, what conventions already hold, or where a new module
-should land. The fix is a persisted project blueprint that
-`librarian` consumes during `/mol:spec` Step 4.5 to answer "where
-does this go? is this already there?" before the spec is drafted.
-
-This skill **builds and refreshes** that blueprint. It does not
-consume it (that's `librarian`'s job) and it does not enforce
-compliance against it (that's `architect`'s review-mode job — see
-the O1 boundary in `design-principles.md`). The single
-responsibility here is: produce a fresh, accurate map and persist
-it under user approval.
+`/mol:spec` Step 4.5 consults `librarian`, which reads the
+blueprint this skill maintains. This skill **builds and refreshes**
+the blueprint — it does not consume it (`librarian`'s job) and it
+does not enforce compliance against it (`architect`'s review-mode
+job; see the O1 boundary in `design-principles.md`). The single
+responsibility: a fresh, accurate map persisted under user approval.
 
 ## Procedure
 
@@ -130,13 +123,10 @@ safe.
 Show the diff (or, on first run, the full proposed inventory) to
 the user. **Wait for approval.** Do not write past this gate.
 
-The gate exists because the blueprint shapes future planning
-decisions: a wrong entry here propagates into every `/mol:spec`
-that consults `librarian`. The user must understand what's being
-recorded — including the implicit risks of any mis-classification
-— and confirm before it lands on disk. This mirrors the same
-"surface findings, get explicit approval" pattern `/mol:spec` Step
-6 enforces for librarian's reuse candidates.
+A wrong blueprint entry propagates into every `/mol:spec` that
+consults `librarian`, so the user must confirm what's being
+recorded before it lands on disk — same pattern as `/mol:spec`
+Step 6's reuse-candidate approval gate.
 
 Acceptable user responses:
 

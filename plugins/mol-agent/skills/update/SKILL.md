@@ -16,10 +16,6 @@ check       reads the harness; reports drift from the current version
 update      applies the upgrade — brings the harness to the current version
 ```
 
-`check` and `update` share a single "what's the diff between this
-harness and the current version's expected shape?" computation.
-`check` reports it; `update` applies the structural part of it.
-
 If the repo has no harness yet, this skill will say so and direct
 the user to `/mol-agent:bootstrap`. It does not initialize from
 scratch.
