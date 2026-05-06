@@ -59,6 +59,7 @@ reach for it, and a one-line example.
 
 | Skill | What | When | Example |
 |---|---|---|---|
+| `/mol:discuss <topic>` | Free-form design / improvement / scientific-insight discussion. Frames the topic, drives toward convergence with an explicit per-turn `Convergence pulse`, and exits one of two ways: **converge** → packages a one-paragraph requirement and tells the user to invoke `/mol:spec` on it; **discard** → leaves no artifacts. Hard 8-turn cap. Read-only. Pairs upstream of `/mol:spec`. | When the requirement isn't yet clear enough for `/mol:spec` and you want to think it through with the agent. | `/mol:discuss should /mol:web own remote dev servers?` |
 | `/mol:spec` | Natural-language requirement → structured `<slug>.md` + binding `<slug>.acceptance.md` under `.claude/specs/`. Bulk drafting + self-validation (sections / atomic tasks / RED-before-GREEN / Files↔Tasks cross-reference) is delegated to the `spec-writer` subagent so parent context stays small. Skill orchestrates conflict detection, user approval, and persistence. Detects conflicts with existing specs and updates them in place when superseded. | Before starting any non-trivial implementation. | `/mol:spec add Morse bond potential to molpy` |
 | `/mol:litrev` | Literature + reference-implementation review (gated on `mol_project.science.required`). Returns equations, validation targets, open questions. | Before specifying a domain-critical feature. | `/mol:litrev Nose-Hoover thermostat` |
 
