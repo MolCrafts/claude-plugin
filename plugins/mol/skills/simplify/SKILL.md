@@ -158,7 +158,7 @@ manual handoffs queued, tests still green.
   entire batch. Never leave the tree in a half-cleaned state.
 - **No new abstractions.** Do not introduce new helpers,
   constants, or modules. Only delete or rename.
-- **No CLAUDE.md / `.agent/` writes.** Rule capture is
+- **No CLAUDE.md / `.claude/notes/` writes.** Rule capture is
   `/mol:note`'s job.
 
 ## Idempotency

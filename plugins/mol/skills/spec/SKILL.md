@@ -31,7 +31,7 @@ is alive — `/mol:impl` ticks the Tasks checkboxes off as work
 progresses and **deletes** both files when every task is complete.
 
 Where specs do **not** belong: `docs/` (public documentation —
-never), `.agent/` (passive notes and decisions — specs are active
+never), `.claude/notes/` (passive notes and decisions — specs are active
 runtime tasks).
 
 ## Procedure
@@ -83,7 +83,7 @@ structured input for `spec-writer`.
 
 Before handing the request to `spec-writer`, ask the `librarian`
 agent to look at what's already in the codebase (via the project
-blueprint at `.agent/architecture.md`) and answer two questions:
+blueprint at `.claude/notes/architecture.md`) and answer two questions:
 *"is this already there?"* and *"where does it canonically belong?"*
 
 Invoke `librarian` with a structured prompt:
@@ -108,7 +108,7 @@ chain is:
 1. this skill invokes `architect` in `mode: inventory` (the
    architect inventory mode) to draft a fresh catalog;
 2. this skill invokes `/mol:map` (which gates on the user-confirm
-   step) to write the refreshed `.agent/architecture.md`;
+   step) to write the refreshed `.claude/notes/architecture.md`;
 3. this skill re-consults `librarian` (the librarian re-consult)
    and now expects Shape A.
 
