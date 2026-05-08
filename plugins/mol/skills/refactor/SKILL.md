@@ -29,6 +29,11 @@ Read CLAUDE.md. Parse `mol_project:` (`$META`).
 4. **Execute incrementally.** One logical change at a time. After each
    change, run `$META.build.test`. If a change breaks more than the set
    of tests you expected, stop and investigate before continuing.
+   **Type safety.** A refactor may only tighten types, never loosen
+   them — it must not introduce `any` / `Any` / `interface{}` /
+   `dyn Any` and must not strip existing annotations. Treat any
+   surfaced loose type as a refactor opportunity to narrow it. The
+   project's static type checker must remain green at every step.
 
 5. **Verify invariants.**
    - Same tests pass (no regressions).

@@ -51,6 +51,7 @@ What's left, and what you cover:
 | Style drift              | line lengths, brace style, import order, trailing whitespace, mixed tabs/spaces — only what the project's formatter is *supposed* to enforce but isn't |
 | Copy-paste duplication   | near-identical blocks across files that were not extracted; only flag when the duplication is ≥ ~6 lines and the divergence is < 30% |
 | Sprawling functions      | functions exceeding `mol_project.style.max_function_lines` (default: 80) |
+| Loose-type escape hatches| `any` / `unknown` (TypeScript), `Any` or missing function signatures (Python), `interface{}` / bare `any` (Go), `dyn Any` (Rust) used outside a deserialization boundary; also: a static type checker (`mypy` / `tsc` / `cargo check`) configured in `mol_project.build.check` that is failing or has been silenced for the touched files |
 | Aesthetic-rule violations| anything captured in `.claude/notes/notes.md` § naming, `.claude/notes/decisions/`, `.claude/notes/rubrics/` that the diff contradicts |
 
 You do **not** flag:

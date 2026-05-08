@@ -148,6 +148,18 @@ Find the closest existing pattern in the codebase:
 For LARGE scope, delegate to the `architect` agent for full
 validation before any test is written.
 
+## Code quality rules (apply through Steps 4–6)
+
+- **Type safety.** Every line of code you write — production or test —
+  must satisfy the project's static type checker (`mypy --strict` /
+  `tsc --strict` / `cargo check` / etc., per `$META.build.check`).
+  Forbid escape-hatch top types: `any` / `unknown` (TypeScript),
+  `Any` and untyped function signatures (Python), `interface{}` /
+  bare `any` (Go), `dyn Any` (Rust). Replace with an explicit union,
+  generic, or trait/protocol bound. The only allowed exception is
+  the moment of deserialization at a system boundary; narrow
+  immediately to a typed shape before passing further inland.
+
 ## Step 4 — TDD (RED)
 
 Find the first **Write failing tests …** task in the spec. Delegate

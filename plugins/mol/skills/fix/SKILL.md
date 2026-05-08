@@ -27,6 +27,11 @@ Read CLAUDE.md. Parse `mol_project:` (`$META`).
    - If the root cause suggests a missing test, delegate to the `tester`
      agent to write a regression test BEFORE the fix (RED), then fix
      (GREEN).
+   - **Type safety.** A patch must not introduce escape-hatch top
+     types (`any` / `Any` / `interface{}` / `dyn Any`) and must not
+     drop existing type annotations. The patch must satisfy the
+     project's static type checker. Exception: deserialization at a
+     system boundary, narrowed immediately.
 
 4. **Verify.** Run the full `$META.build.test` suite to confirm no
    regressions. Run `$META.build.check` for format / lint.
