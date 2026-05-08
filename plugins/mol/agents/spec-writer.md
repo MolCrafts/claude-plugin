@@ -149,7 +149,7 @@ Required for cross-references:
 
 For every Task and every behavior in Testing strategy that
 matters for "done", propose a criterion in the format defined
-by `plugins/mol/docs/evaluator-protocol.md`:
+by `plugins/mol/rules/evaluator-protocol.md`:
 
 ```yaml
 - id: ac-001

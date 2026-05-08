@@ -10,7 +10,7 @@ Read CLAUDE.md. Parse `mol_project:` (`$META`).
 Write-mode counterpart to the `janitor` review axis: `janitor`
 stays read-only and emits hygiene findings; this skill applies
 them under a build/test gate with regression revert. See
-`plugins/mol/docs/agent-design.md` § "Producer vs reviewer".
+`plugins/mol/rules/agent-design.md` § "Producer vs reviewer".
 
 ## Scope contract
 

@@ -23,7 +23,7 @@ Two files per spec, written together:
 - `<slug>.md` — the design (Summary / Design / Files / Tasks /
   Testing / Out of scope).
 - `<slug>.acceptance.md` — the binding "done" contract per
-  `plugins/mol/docs/evaluator-protocol.md`; `/mol:impl` and any
+  `plugins/mol/rules/evaluator-protocol.md`; `/mol:impl` and any
   runtime evaluator (e.g. `/mol:web`) verify against it.
 
 `/mol:impl` refuses to start without both files in place. The pair
@@ -189,7 +189,7 @@ After approval:
    not change `created`).
 
 2. Write `{$META.specs_path}{slug}.acceptance.md` per the
-   schema in `plugins/mol/docs/evaluator-protocol.md`.
+   schema in `plugins/mol/rules/evaluator-protocol.md`.
 
 3. Update `{$META.specs_path}INDEX.md`:
 
@@ -243,7 +243,7 @@ ensuing conversation. User-interaction parts (triage, approval,
 persistence, INDEX) stay here — they need dialogue and atomic
 writes.
 
-See `plugins/mol/docs/agent-design.md` for the full producer /
+See `plugins/mol/rules/agent-design.md` for the full producer /
 reviewer / drafter classification.
 
 ## Bilingual

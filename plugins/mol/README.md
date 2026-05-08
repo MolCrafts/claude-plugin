@@ -48,13 +48,13 @@ active/passive split lives inside `.claude/`.
 > "agents" = what the agent *is*.
 
 Notes are kept; specs are intentionally ephemeral. Full rules in
-[`docs/design-principles.md`](docs/design-principles.md). Run
+[`rules/design-principles.md`](rules/design-principles.md). Run
 `/mol-agent:check` to verify compliance.
 
 ## Skills
 
 All `mol` skills require a `mol_project:` frontmatter in CLAUDE.md
-(see [`docs/claude-md-metadata.md`](docs/claude-md-metadata.md)) and
+(see [`rules/claude-md-metadata.md`](rules/claude-md-metadata.md)) and
 fail fast with an adoption hint when it is missing. To create
 CLAUDE.md and the surrounding harness, run `/mol-agent:bootstrap`
 first.
@@ -157,7 +157,7 @@ Agents are invoked only through skills (never directly by the user).
 Each owns one expertise axis. They split into two kinds —
 **producer** agents (write content to files) and **reviewer** agents
 (read-only, emit findings) — explained in
-[`docs/agent-design.md`](docs/agent-design.md).
+[`rules/agent-design.md`](rules/agent-design.md).
 
 | Agent | Kind | Axis |
 |---|---|---|
@@ -188,10 +188,10 @@ The plugin follows the harness-engineering layering plus a strict
 two-layer model (skill = orchestrator + workflow; agent = single
 expertise axis). The producer-vs-reviewer split — why `tester`
 writes but `optimizer` doesn't — is documented in
-[`docs/agent-design.md`](docs/agent-design.md). Layering,
+[`rules/agent-design.md`](rules/agent-design.md). Layering,
 orthogonality, knowledge-locality, capability, workflow, output, and
 idempotency rules are spelled out — and audit-checked — in
-[`docs/design-principles.md`](docs/design-principles.md). Run
+[`rules/design-principles.md`](rules/design-principles.md). Run
 `/mol-agent:check` against any project's harness to verify
 compliance. (The marketplace repo itself has no harness; use
 `/mol-plugin:check` for its self-audit.)

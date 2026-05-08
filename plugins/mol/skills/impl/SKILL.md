@@ -229,7 +229,7 @@ If all three conditions hold:
 
    Do **not** auto-invoke. Orchestration is the user's call (or
    their external orchestrator's call); see
-   `plugins/mol/docs/evaluator-protocol.md`.
+   `plugins/mol/rules/evaluator-protocol.md`.
 3. Tell the user concisely: *"<slug> code is complete. Deleting
    spec + acceptance + INDEX entry. Runtime evaluators above are
    yours to invoke."*

@@ -284,7 +284,7 @@ require a deliberate decision to break>
 ```
 
 If the user opts into the `mol` plugin contract, prepend a
-`mol_project:` YAML block per `docs/claude-md-metadata.md` and route
+`mol_project:` YAML block per `rules/claude-md-metadata.md` and route
 references in the body to the project's chosen `notes_path` and
 `specs_path`.
 
