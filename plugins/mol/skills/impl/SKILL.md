@@ -9,6 +9,22 @@ Read CLAUDE.md. If the first block is a `mol_project:` frontmatter,
 parse it; otherwise print the adoption hint and stop. Let `$META`
 refer to the parsed frontmatter throughout.
 
+Read `$META.stage` (default: `experimental` if absent — emit the
+warning from `plugins/mol/rules/stage-policy.md`). Print one line:
+`[mol] stage: <value>`. The stage governs breaking-change posture
+for the rest of this run per `plugins/mol/rules/stage-policy.md`:
+
+- `maintenance` — refuse unless the spec frontmatter has
+  `kind: bugfix`. Print the refusal message from the rule doc and
+  stop.
+- `stable` — Step 5 changes that modify an existing public
+  signature must propose a deprecation shim and pause for user
+  approval before applying.
+- `beta` — public-API changes proceed, but commit-message bodies
+  authored at Step 7 must include a one-paragraph migration note.
+- `experimental` — no extra constraints; legacy code may be
+  rewritten or deleted in the same diff as the new feature.
+
 ## Step 1 — Assess scope
 
 Classify the task against `$META.arch.style`:

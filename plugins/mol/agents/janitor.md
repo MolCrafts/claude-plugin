@@ -101,6 +101,22 @@ If a marker has no owner annotation (`TODO(name): …`) at all and is
 older than the window, that is a 🟡 separately from staleness — the
 project's rule is "TODOs must name an owner".
 
+### Stage-aware tuning
+
+`mol_project.stage` (see `plugins/mol/rules/stage-policy.md`)
+modifies the effective window before age comparison:
+
+| Stage          | Effective window      | Severity-tier shift                         |
+|----------------|-----------------------|---------------------------------------------|
+| `experimental` | `window / 2`          | none (short-lived projects shouldn't carry old markers) |
+| `beta`         | `window` (default)    | none                                        |
+| `stable`       | `window × 2`          | none (long-lived markers are legitimate while waiting on a major bump) |
+| `maintenance`  | `window` (default)    | every finding downgraded one tier (🚨→🔴, 🔴→🟡, 🟡→🟢) — the user has declared cosmetic noise out of scope |
+
+State the active stage and the resolved window in the output footer
+so a 🟡 vs. 🟢 verdict is reproducible:
+`stage: stable — debt window doubled to 120d`.
+
 ## Procedure
 
 1. **Determine the diff scope.**

@@ -5,7 +5,25 @@ argument-hint: "<what to refactor and why>"
 
 # /mol:refactor — Refactor
 
-Read CLAUDE.md. Parse `mol_project:` (`$META`).
+Read CLAUDE.md. Parse `mol_project:` (`$META`). Read `$META.stage`
+(default: `experimental`). Print `[mol] stage: <value>`.
+
+Stage gate per `plugins/mol/rules/stage-policy.md` — apply before
+any other step:
+
+- `maintenance` — **refuse**. Print: *"`<project>` is in
+  `maintenance`; refactors are out of scope. Bump the stage in
+  CLAUDE.md if this is intentional."* and stop.
+- `stable` — proceed, but public symbol renames require `pm` agent
+  pre-review (delegate at Step 3 alongside `architect`). Internal
+  renames are unaffected.
+- `beta` — proceed; the post-refactor `architect` check at Step 5
+  additionally verifies that README / tutorial code blocks still
+  parse against the new public shape.
+- `experimental` — proceed with full latitude; the snapshot in
+  Step 1 records the *current* shape, and the public-API
+  preservation clause in Step 5 is treated as informational rather
+  than binding.
 
 ## Procedure
 
