@@ -52,7 +52,7 @@ Invoke `/mol:impl <slug>`. `/mol:impl` owns all guardrails (stage gate, science 
 After `/mol:impl` completes, check the result:
 
 - Spec `status: done` (deleted by `/mol:impl`) → record done, run `/mol:commit` with message `feat(<base>): implement <phase> (<NN>/<total>)`.
-- Spec `status: code-complete` → `/mol:impl` parked it for runtime evaluators. Record parked, run `/mol:commit`, continue to next spec.
+- Spec `status: code-complete` → record parked, run `/mol:commit`, continue to next spec.
 - Spec still `in-progress` or `approved` (didn't advance) → `/mol:impl` hit a blocker. Stop the chain.
 
 ### 3. Report
@@ -62,12 +62,10 @@ After `/mol:impl` completes, check the result:
 
   morse-bond-01-potential      done
   morse-bond-02-gradient       done
-  morse-bond-03-optimization   code-complete (pending: ui_runtime → /mol:web)
+  morse-bond-03-optimization   code-complete
 
   2 done, 1 parked, 0 failed
 ```
-
-If any specs are parked, print the runtime evaluator command to run next.
 
 ---
 

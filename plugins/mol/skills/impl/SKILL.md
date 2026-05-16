@@ -31,7 +31,7 @@ Read `{$META.specs_path}{slug}.md` + `{$META.specs_path}{slug}.acceptance.md`. R
 - `draft` → refuse (re-run `/mol:spec`).
 - `approved` → first run.
 - `in-progress` → resume (run 1c).
-- `code-complete` → skip to § 4 (runtime evaluator re-check).
+- `code-complete` → skip to § 4.
 - `done` → warn (should be deleted).
 
 **Stage gate:** `maintenance` refuses unless spec has `kind: bugfix`.
@@ -99,17 +99,15 @@ Re-read spec + acceptance.
 
 ### 4a. Update acceptance ledger
 
-For each `type: code | runtime` criterion, write back verdict (`verified` / `failed`) with `last_checked` date. Never touch `ui_runtime` / `scientific` / `performance` / `docs` — those flip only via runtime evaluators.
+For each `type: code | runtime` criterion, write back verdict (`verified` / `failed`) with `last_checked` date. Leave criteria of other types untouched.
 
 ### 4b. Decide status
 
-Three conditions must hold: all Tasks `[x]`, build green, every `code`/`runtime` criterion `verified`.
-
-Any failing → leave `in-progress`, print remaining tasks + unmet criteria. Stop.
+All Tasks `[x]`, build green, every `code` / `runtime` criterion `verified` — any failing → leave `in-progress`, print remaining tasks + unmet criteria, stop.
 
 All hold:
-- No runtime-typed criteria, or all already `verified` → **done** (§ 4c).
-- ≥1 runtime-typed still `pending`/`failed` → **code-complete** (§ 4d).
+- Acceptance has only `code` / `runtime` criteria → **done** (§ 4c).
+- Any other-typed criterion exists → **code-complete** (§ 4d).
 
 ### 4c. Done path
 
@@ -122,14 +120,7 @@ All hold:
 
 1. Mark `status: code-complete`.
 2. Invoke `/mol:commit` (same as done path). BLOCK → drop to `in-progress`, stop.
-3. Surface pending runtime criteria grouped by `evaluator_hint`:
-   ```
-   <slug>: code-complete. N criteria pending:
-     ui_runtime  → run `/mol:web <slug>`
-       - ac-004 — first paint under 200ms
-   Re-run `/mol:impl <slug>` after evaluators flip each to verified.
-   ```
-4. Do not delete spec/acceptance/INDEX.
+3. List the criteria left at `pending`, grouped by `type` (id + summary only). Do not delete spec/acceptance/INDEX.
 
 For chained specs, exit cleanly after commit — don't auto-advance.
 
