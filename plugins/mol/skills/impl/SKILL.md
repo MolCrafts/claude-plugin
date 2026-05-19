@@ -120,7 +120,33 @@ All hold:
 
 1. Mark `status: code-complete`.
 2. Invoke `/mol:commit` (same as done path). BLOCK → drop to `in-progress`, stop.
-3. List the criteria left at `pending`, grouped by `type` (id + summary only). Do not delete spec/acceptance/INDEX.
+3. List the criteria left at `pending`, **grouped by evaluator owed** (per `evaluator-protocol.md`):
+   - `type: performance | scientific` → owed to `/mol:bench` (or `/mol:close --manual` if `mol_project.bench.repo` is not configured)
+   - `type: ui_runtime` → owed to `/mol:web`
+   - `type: docs` → owed to a human reviewer (or `/mol:close --manual`)
+   - any criterion with `evaluator_hint:` set → owed to that specific evaluator
+4. Print the **closing recipe** verbatim, so the operator knows exactly how to advance the spec from `code-complete` → `done`:
+
+   ```
+   PARKED at code-complete. To advance to `done` and delete the spec:
+
+     1. Run the owed evaluator(s) listed above; each flips its criteria
+        to status: verified.
+     2. Re-run `/mol:impl <slug>` — when every criterion is verified,
+        §4 advances to done and deletes the spec, acceptance, and INDEX entry.
+
+   Manual close (no evaluator available, operator has observed conditions
+   met externally):
+
+     /mol:close <slug> --manual
+
+     — flips every pending criterion to verified with a manual-promote
+     audit note, then advances to done. Use only when you have actually
+     observed the pass_when condition; the audit trail lands in the
+     commit message.
+   ```
+
+5. Do not delete spec/acceptance/INDEX.
 
 For chained specs, exit cleanly after commit — don't auto-advance.
 

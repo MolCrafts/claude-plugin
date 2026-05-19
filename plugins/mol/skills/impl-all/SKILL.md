@@ -57,15 +57,44 @@ After `/mol:impl` completes, check the result:
 
 ### 3. Report
 
+Show one row per spec with its terminal status. For every spec at
+`code-complete`, attribute the parking reason to a specific evaluator
+so the operator knows what to run next (or whether `/mol:close --manual`
+is appropriate).
+
 ```
 ═══ [mol:impl-all] chain verdict ═══
 
   morse-bond-01-potential      done
   morse-bond-02-gradient       done
-  morse-bond-03-optimization   code-complete
+  morse-bond-03-optimization   code-complete   owes: /mol:bench  (2 perf criteria)
 
   2 done, 1 parked, 0 failed
 ```
+
+After the table, if any spec parked, print the chain-level **closing
+recipe** once (don't repeat per spec):
+
+```
+PARKED specs require runtime-evaluator verification before they
+self-delete. To finish closing the chain:
+
+  - Run each owed evaluator on its spec (e.g. `/mol:bench
+    morse-bond-03-optimization`); evaluators flip their criteria to
+    status: verified.
+  - Re-run `/mol:impl <slug>` per spec — when every criterion is
+    verified, the spec advances to done and is deleted.
+
+Manual close (when no evaluator is available, e.g. mol_project.bench.repo
+is unset):
+
+  /mol:close <slug> --manual
+
+  for each parked spec. Operator asserts the pass_when conditions
+  are met; the audit trail lands in the commit message.
+```
+
+Skip the recipe entirely if no spec parked (chain reached done end-to-end).
 
 ---
 
