@@ -113,7 +113,7 @@ git fetch --tags <release-remote>
 git ls-remote --tags <release-remote> "<tag>"
 ```
 
-Then:
+Then emit the one-line F2 summary:
 
 ```
 /mol:tag: pushed <tag> → <release-remote>

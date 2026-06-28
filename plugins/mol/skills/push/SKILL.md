@@ -61,6 +61,8 @@ git push -u origin <branch>
 
 ### 6. Report
 
+Emit the one-line F2 summary plus a next-step pointer:
+
 ```
 /mol:push: pushed <branch> → origin/<branch>
   <short-sha-range>

@@ -135,4 +135,4 @@ For chained specs, exit cleanly after commit + auto-close — don't start the ne
 
 ## 5. Summary
 
-One line: scope, files changed, tests passing, resulting `status:` (`done` / `code-complete` with N pending / `in-progress` with N remaining), acceptance tally.
+One-line F2 summary: scope, files changed, tests passing, resulting `status:` (`done` / `code-complete` with N pending / `in-progress` with N remaining), acceptance tally.

@@ -51,6 +51,8 @@ Never `--no-verify` / `--no-gpg-sign` / `--amend`. Pre-commit hook fails despite
 
 ### 6. Report
 
+Emit the one-line F2 summary plus a next-step pointer:
+
 ```
 /mol:commit: committed <short-sha> on <branch>
   <subject>
