@@ -92,7 +92,7 @@ BLOCK
 
 ## 4. Final summary
 
-Print one line with:
+End with a one-line F2 summary listing:
 
 * reviewed file count
 * axes covered

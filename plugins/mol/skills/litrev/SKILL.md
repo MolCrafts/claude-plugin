@@ -23,3 +23,9 @@ Delegate to `scientist` agent for domain expertise. Extend with:
 - **Implementation guidance.** Algorithm variant, numerical details, pitfalls, expected edge cases.
 - **Validation plan.** Ordered tests with expected values and tolerances.
 - **Open questions.** What user must decide before `/mol:spec`.
+
+End with a one-line F2 summary:
+
+```
+/mol:litrev <method>: <YES | NO | CONDITIONAL> — <N> refs, <M> open questions → /mol:spec
+```
