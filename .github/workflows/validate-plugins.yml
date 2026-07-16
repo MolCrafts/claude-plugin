@@ -22,3 +22,8 @@ jobs:
 
       - name: Validate Claude Code and Codex plugin metadata
         run: python3 plugins/mol-plugin/scripts/validate_repository.py
+
+      - name: Run structural unit tests
+        run: |
+          python3 plugins/mol-plugin/tests/test_model_policy.py
+          python3 plugins/mol-plugin/tests/test_project_blueprint_mechanism.py
