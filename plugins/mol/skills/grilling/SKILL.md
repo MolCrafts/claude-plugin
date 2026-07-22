@@ -1,6 +1,6 @@
 ---
 name: grilling
-description: Grill a plan or written spec relentlessly, one question at a time. Use when the user wants to stress-test a plan or design, uses any "grill" trigger, or when another skill needs a plan stress-test — `/mol:discuss` after converge (mode plan) and `/mol:spec` after persist (mode spec-audit). Read-only on source; returns a sharpened plan or audit result. Supports Chinese and English.
+description: One-question-at-a-time plan/spec interview (recommended answers, Grill pulse). Free-form 盘问/grill when a plan exists; auto from discuss (plan) and spec (spec-audit). No plan → /mol:discuss. Never auto /mol:spec or /mol:impl. Read-only.
 argument-hint: "[mode:plan|spec-audit] <plan, requirement, or slug>"
 ---
 
@@ -72,7 +72,7 @@ Assemble:
 - a **Decisions** log — each line `question → chosen answer → why`
 - the relevant file paths from Step 1
 
-Tell the user: *"sharpened. To produce the binding spec, run `/mol:spec <sharpened plan>`. Paste the Decisions log as additional context to capture the rationale."* Do **not** invoke `/mol:spec` or `/mol:impl`.
+Tell the user: *"sharpened. To produce the binding spec, say 落盘 / 写 spec / `spec this` (or run `/mol:spec <sharpened plan>`). Paste the Decisions log as additional context to capture the rationale."* Do **not** invoke `/mol:spec` or `/mol:impl` (tier C — needs explicit ignition).
 
 Return shape for callers:
 

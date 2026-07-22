@@ -24,10 +24,13 @@ session-model changes.
   git chain. The main loop plans, routes, gates, and verifies.
 
 Invoker class (user vs model — who may *fire* the skill) is orthogonal
-to advisor/orchestration (what the skill *delivers*). See
-`plugins/mol/rules/design-principles.md` § 2.5. Example: `/mol:grilling`
-is advisor + model-invoked; `/mol:spec` is orchestration + model-invoked
-and auto-invokes grilling after persist.
+to advisor/orchestration (what the skill *delivers*). Free-form
+auto-trigger tiers (A–E) are a third axis: how aggressively natural
+language should load the skill. See
+`plugins/mol/rules/design-principles.md` § 2.5–2.6. Example:
+`/mol:grilling` is advisor + model-invoked + tier A (has plan);
+`/mol:spec` is orchestration + model-invoked + tier C (one-sentence
+ignition) and auto-invokes grilling after persist.
 
 A skill's mode follows its deliverable, not a flag. A skill that both
 answers and writes (e.g. `/mol:spec`) is orchestration: the persisted

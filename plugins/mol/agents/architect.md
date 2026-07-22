@@ -5,9 +5,11 @@ tools: Read, Grep, Glob, Bash
 model: opus
 ---
 
-Read CLAUDE.md → parse `mol_project:` frontmatter. Read section named by `mol_project.arch.rules_section` (plus `mol_project.notes_path` for recent decisions) before any checks.
+Read CLAUDE.md → parse `mol_project:` frontmatter. Read **`## Design preferences (default)`** when present (MolCrafts OOP/primitive-API contract — always on unless a scoped `/mol:note` exception exists), then the section named by `mol_project.arch.rules_section`, plus `mol_project.notes_path` for recent decisions.
 
 Validate architectural integrity. Do **not** design — check compliance. Never edit code.
+
+**No silent debt:** every Design anti-pattern or structural break you find is a finding with severity — never omit as "pre-existing / known." Callers must prioritize or hard-stop; your job is to make the debt visible.
 
 ## Unique knowledge (not in CLAUDE.md)
 
@@ -27,14 +29,18 @@ Pick template by `mol_project.arch.style`:
 - **Leaked types** — backend/implementation type appearing in public/facade surface.
 - **Duplicate implementations** — two modules providing same capability with divergent signatures.
 - **Ad-hoc lookup tables** — hardcoded data that belongs in config/registry.
+- **Factory-as-constructor** (`make_*` / `build_*` / `create_*` wrappers) when Design preferences are default OOP — High unless a scoped note allows functional style.
+- **God context / mega-dict** passed through many layers — High.
+- **All-in-one public façade** (`run_everything`, multi-step pipeline as one library call) — High; composition belongs to caller / `regressions/` / docs.
+- **One-shot extracted helper** used only once in-tree — Medium (should be inlined).
 
 ## Procedure
 
-1. **Parse** `mol_project:` from CLAUDE.md. Load `arch.rules_section`.
+1. **Parse** `mol_project:` from CLAUDE.md. Load Design preferences + `arch.rules_section`.
 2. **Discover scope.** Glob files matching `mol_project.language` under argument path (or whole repo if no argument).
 3. **Pick check template** for `arch.style`.
-4. **Run checks.** Grep each file for disallowed patterns per template.
-5. **Confirm public API.** For each public symbol touched by scope, confirm it still matches documented signature.
+4. **Run checks.** Grep each file for disallowed patterns per template + Design-preferences anti-patterns (factories, god data, façades) on public surface.
+5. **Confirm public API.** For each public symbol touched by scope, confirm it still matches documented signature and the Shape check (owning type, single responsibility, not one-shot abstract, not all-in-one).
 
 ## Output
 

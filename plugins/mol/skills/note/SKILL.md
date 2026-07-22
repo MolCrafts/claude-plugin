@@ -1,71 +1,111 @@
 ---
 name: note
-description: Capture an architectural decision into the project's notes file. Detects conflicts with existing notes or CLAUDE.md, cleans up stale notes, and promotes stable rules into CLAUDE.md. Writes notes and (when promoting) CLAUDE.md.
-argument-hint: "<what to remember>"
+description: Sync a decided rule into the harness (CLAUDE.md + `.claude/notes/**`) — supersede/delete fossils, never append-only. Free-form: 记下来/约定变了/we decided/supersede. Writes harness knowledge only.
+argument-hint: "<the decision or correction to capture>"
 ---
 
 > **Codex:** Read `../CODEX.md` before executing this shared workflow. Claude Code follows the workflow directly.
 
-# /mol:note — Architecture Note
+# /mol:note — Harness Knowledge Sync
 
 Read CLAUDE.md → parse `mol_project:` (`$META`).
 
-Resolve notes path: `$META.notes_path` if set, else `.claude/notes/notes.md`. Create file + parent dir if missing.
+**Not a diary.** One live rule per topic; git is the archive. Every run: reconcile → clean → place → rewrite.
 
-Notes are **passive internal context** under `.claude/notes/`. Never `docs/` (public). Never `.claude/specs/` (active runtime artifacts; see `/mol:spec`). Notes outlive any single feature; specs do not.
+## Write surface
+
+| Edit | Never |
+|---|---|
+| `CLAUDE.md` (preserve `mol_project:` unless decision renames a path field) | Project source, tests, public `docs/` |
+| `$META.notes_path` (default `.claude/notes/notes.md`) | `.claude/specs/**` |
+| `.claude/notes/<topic>.md` (create/rewrite/delete) | Plugin agent/skill definitions |
+| `architecture.md` — only strike a false one-line claim; full rebuild → `/mol:map` | Binaries / generated assets |
 
 ## Procedure
 
-### 1. Conflict check (MANDATORY — before any write)
+### 1. Parse
 
-Read notes file + `CLAUDE.md`. For new note:
+From `$ARGUMENTS` + conversation:
 
-- **Duplicate.** Existing note or CLAUDE.md says same thing → tell user, don't add.
-- **Contradiction.** Existing rule says opposite:
-  ```
-  CONFLICT: new note "<X>" contradicts existing "<Y>" in {file}:{line}.
-  ```
-  Ask which is correct. Then:
-  - Update or delete the wrong entry.
-  - Wrong entry in CLAUDE.md → fix CLAUDE.md.
-  - Wrong entry in notes → delete or rewrite.
-- **Supersede.** New note refines/replaces older → update old in-place; do not keep both.
+- **Rule** — one imperative for the next agent
+- **Topic key** — slug (`naming-n-atoms`, `arch-forces-layout`, …)
+- **Kind** — `additive` | `supersede` | `retract` | `correct`
+- **Evidence** — paths/symbols if any
 
-### 2. Scan for stale notes
+Overturn language ("改成…", "不再…", "supersede") → force `supersede`. State parse briefly before writing.
 
-Every invocation also scans existing entries:
+### 2. Inventory
 
-- **Outdated.** Grep to verify note still references live code. Delete notes pointing at dead code.
-- **Already promoted.** Rule fully covered by CLAUDE.md → delete the note.
-- **Contradicts current code.** Flag for user.
+Read before write: full `CLAUDE.md`, notes file, `.claude/notes/**` overlapping the topic (list paths first). Optional grep for symbol liveness.
 
-Report any cleanup performed.
+Tag each hit: `same` | `conflict` | `stale` | `predecessor` | `unrelated`.
 
-### 3. Decide placement
+### 3. Reconcile — new decision wins
 
-- Stable, proven, verified in code → write directly to CLAUDE.md. Keep CLAUDE.md as thin router (L3): large rule → write `.claude/notes/<topic>.md` + link, don't inline.
-- New or evolving → write to notes file.
-- Already covered → tell user, do nothing.
+| relation | action |
+|---|---|
+| same | No new entry; still run stale sweep |
+| conflict / predecessor | Delete or rewrite in place — never a second contradictory bullet |
+| stale | Delete entry (or empty topic page) |
+| open-question answered | Remove those bullets |
+| unrelated | Leave |
 
-### 4. Write the entry
+Do **not** ask which is correct when the user just decided. Ask only if two *new* alternatives are still open.
+
+### 4. Stale sweep (every run)
+
+- Dead path/symbol refs → delete/rewrite
+- Fully restated in CLAUDE.md → delete notes staging
+- Duplicate cluster → one canonical home (Step 5)
+- Orphan superseded topic pages → delete file + links
+
+### 5. Single canonical home
+
+| Stability | Home |
+|---|---|
+| Stable, short, every agent must see | `CLAUDE.md` (thin router) |
+| Stable, long | `.claude/notes/<topic>.md` + one link from CLAUDE.md |
+| Evolving | `notes.md` — **rewrite** same topic key; don't date-stack clones |
+| Module map | Prefer `/mol:map`; one-line claim fix only |
+
+Never leave the same rule in both notes.md and CLAUDE.md.
+
+### 6. Write
+
+1. Remove superseded/stale/dupes.
+2. Edit in place when `<!-- mol:note:topic:<key> -->` or same heading exists; append only if topic is new.
+3. Promote → write canonical home, delete staging copy.
+4. Over-budget CLAUDE.md → move bulk to topic page + link.
+5. Touch bootstrap managed markers only if the decision is about that managed content.
 
 ```markdown
----
-
+<!-- mol:note:topic:<topic-key> -->
 ## [YYYY-MM-DD] Short title
 
-Description of the decision or correction.
+Why (if non-obvious).
 
-**Rule**: the concrete rule to follow.
+**Rule**: <imperative>
+
+**Supersedes**: <old rule or path, if any>
 ```
 
-### 5. Promotion check
+CLAUDE.md entries: undated bullets, no diary stack.
 
-After writing, scan all notes entries. Promote any that are:
+### 7. Map handoff
 
-- Verified in current code (grep to confirm).
-- Unchanged in recent conversation history.
+Layout/layer/public-surface change → patch false `architecture.md` claim **or** recommend/invoke `/mol:map`. No architecture essays in notes.md.
 
-Promoting = copy rule to appropriate CLAUDE.md section (or `.claude/notes/<topic>.md` page if large enough that inlining bloats CLAUDE.md past router budget), then delete from notes file.
+### 8. Self-check then report
 
-End with one-line summary: captured, cleaned, promoted, notes file path used.
+No contradictions; no notes+CLAUDE dupes; no dead refs; CLAUDE still thin; specs untouched.
+
+```
+/mol:note [<topic-key>]: <added|rewrote|promoted|retracted|no-op>
+  canonical: <path> | cleaned: N | superseded: N | map: unchanged|patched|→/mol:map
+```
+
+## Guardrails
+
+- Sync ≠ append. New decision wins; git keeps history.
+- Harness only. Idempotent re-run → no-op or tiny sweep, not a clone.
+- Ask only for ambiguous *new* choices.

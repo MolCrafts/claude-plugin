@@ -1,53 +1,41 @@
 ---
 name: docs
-description: Documentation audit and writing — docstrings in the project's documented style plus narrative tutorials. Writes docs and code comments.
-argument-hint: "[path, spec slug, or feature name]"
+description: Mode A docstring/API fix-up (auto after /mol:impl on public surface; free-form 补文档/missing docs). Mode B narrative tutorial (tier C — 写教程 only, never auto from impl). Load this skill; don't invent docs in bare chat.
+argument-hint: "[path, spec slug, or feature name] [mode:A|B]"
 ---
 
 > **Codex:** Read `../CODEX.md` before executing this shared workflow. Claude Code follows the workflow directly.
 
 # /mol:docs — Documentation
 
-Read CLAUDE.md → parse `mol_project:` (`$META`). Pick one mode — do not mix.
+Read CLAUDE.md → parse `mol_project:` (`$META`). Pick **one** mode.
 
-## Mode A — Docstring / API audit
+## When
 
-Delegate to `documenter` agent in audit mode. Loads style rules for `$META.doc.style`:
+| Trigger | Mode |
+|---|---|
+| `/mol:impl` § 3c — public surface in diff | **A** (auto) |
+| 补文档 / docstring / bare public API | **A** |
+| 写教程 / tutorial | **B** (never from impl) |
+| No public symbols + no ask | skip |
 
-- `google` — Google-style Python: short summary, blank line, Args/Returns/Raises sections, types in signatures not prose.
-- `rustdoc` — `# Examples`, `# Errors`, `# Panics`; `///` items, `//!` modules; math via `\\[...\\]`.
-- `jsdoc-tiered` — three tiers per symbol kind:
-  - **Full** — class + top-level function declarations.
-  - **Brief** — one-line for internal helpers.
-  - **Inline** — beside non-obvious expressions only.
-- `doxygen` — `@brief`, `@param` with units, `@return`, `@file` headers.
+Missing `$META.doc.style` → skip once; do not invent a style.
 
-Audit checks every public symbol for:
-1. Required tier present.
-2. Unit annotations on every physical quantity (if `$META.science.required`).
-3. Matches current implementation (no stale references).
-4. No dangling cross-references.
+## Mode A — audit + apply
 
-Output: `<emoji> file:line — message` with `Fix:` lines (🚨 / 🔴 / 🟡 / 🟢 = Critical / High / Medium / Low).
+Delegate `documenter` (audit). Style from `$META.doc.style` (`google` / `rustdoc` / `jsdoc-tiered` / `doxygen` — details in `agents/documenter.md`).
 
-## Mode B — Narrative tutorial
+Check public symbols: required tier; units if `science.required`; matches impl; no dangling refs. Findings: `emoji file:line — msg` + `Fix:`.
 
-Delegate to `documenter` agent in tutorial mode. Before delegating, collect:
+**Apply** docstring/comment-only `Fix:` lines. Re-audit touched symbols. Chain scope = caller paths; zero public symbols → one-line no-op.
 
-1. Relevant spec in `$META.specs_path` (if exists).
-2. Implementation files defining current behavior.
-3. Existing user-facing docs on the same topic.
-4. Real example program the tutorial will reference.
+## Mode B — tutorial
 
-Missing file/target/plot/API → do not mention as if it exists. Correct the tutorial or create the artifact first.
+Delegate `documenter` (tutorial). Collect: related spec, impl files, existing docs, real runnable example. Don't invent missing APIs/artifacts.
 
-Tutorial rules:
-- Lead with problem + intuition; introduce notation after reader knows why it matters.
-- Prose over lists. Bullets only for genuine enumeration.
-- Every symbol defined before use.
-- Reference a concrete, runnable example.
-- Math: standard Markdown LaTeX (`$...$` inline, `$$...$$` display). No Doxygen `\f` markers.
+Rules: problem + intuition first; define symbols before use; concrete example; `$...$` / `$$...$$` math. Science topics → two-part structure (textbook derivation ≡ code) per `documenter.md`.
 
-**Science content (if `$META.science.required` or topic is scientific):** agent must produce two equal-weight parts — *Part 1* self-contained textbook derivation that an undergrad-level newcomer can verify *without reading the code*; *Part 2* the project / code mapping. Part 1 is a verification artifact — must be **completely equivalent** to the implementation (equations, signs, units, conventions). Discrepancies = findings (fix the wrong side), not stylistic notes. See `agents/documenter.md` § "Science content: mandatory two-part structure" + § "Equivalence rule".
+## Guardrails
 
-End with one-line summary: files written, example referenced, TODOs. Science tutorials also report the equivalence-rule check (which equations vs. which code locations).
+- Never mix A/B. Mode B never auto from write chains.
+- Mode A behavior-preserving only; renames → `/mol:refactor` or `/mol:fix`.
