@@ -153,6 +153,11 @@ Condensed from `rules/design-principles.md`. Focus on structural drift; skip con
 - `.claude/notes/` — free of specs? Free of public-user prose?
 - `.claude/` — any loose `.md` files at root? (Always a smell.)
 - `CLAUDE.md` — line-count it. ≤ ~150 lines soft budget. Flag if it embeds large rule sets.
+- **Design preferences** — managed section should include
+  `## Design preferences (default)` (OOP / no factories / no god data /
+  no all-in-one API) **and** the **Iron law — no silent debt**
+  subsection. Missing when mol contract is opted-in → 🟡 repair
+  via managed-section refresh.
 
 For projects with `mol_project:` frontmatter:
 - `specs_path` → under `.claude/specs/`. Flag if `docs/`, `.claude/notes/`, or bare `.claude/`.
@@ -294,6 +299,11 @@ End with one-line summary.
 
 ## CLAUDE.md template (router)
 
+Managed body is the **default MolCrafts project contract**. Re-running
+bootstrap refreshes everything between the markers (including Design
+preferences). Project-specific overrides go **outside** the markers, or
+via `/mol:note` with an explicit functional-style exception.
+
 ```markdown
 # CLAUDE.md
 
@@ -308,20 +318,86 @@ End with one-line summary.
 ## Where things live
 
 - Source code: `<path>`
-- Tests: `<path>`
+- Tests: `tests/` (mirrors source: `src/foo/boo.py` → `tests/test_foo/test_boo.py`)
 - Public documentation: `docs/`
 - Passive project knowledge (notes, decisions, debt, blueprint): `.claude/notes/`
 - Active runtime specs (alive, deleted on completion): `.claude/specs/`
 - Claude Code runtime config (agents, skills, hooks, settings):
   `.claude/agents/`, `.claude/skills/`, `.claude/hooks/`, `.claude/settings.json`
 
+## Design preferences (default)
+
+**Default for all MolCrafts projects.** Apply unless the operator
+**explicitly** requires a functional (or other) style for a named
+subsystem — then capture the exception with `/mol:note` and scope it.
+Do **not** invent a functional style on your own.
+
+### Iron law — no silent debt (all projects)
+
+Discover anti-pattern / failing test / broken invariant / clear bug
+in the surface you touch or depend on → **prioritize or hard-stop**:
+
+1. **Do not ignore** ("pre-existing, leave it"), skip-mark, weaken
+   asserts, or land features on known rot.
+2. **Fix now** if local + stage-allowed; else **stop**, report
+   path:line, route `/mol:fix` / `/mol:refactor` / supersede.
+3. **Name it** in the summary (found / fixed / blocking). Silence = process failure.
+
+Outranks "stay in scope" / "minimal diff" when those mean knowingly
+leaving rot you already saw.
+
+### Prefer
+
+- **OOP by default.** Domain concepts are types with methods
+  (`NeighborList.build`, `ForceField.energy`), not free-floating
+  helpers. Module-level functions only for true free operations (pure
+  math with no natural owner) or thin package re-exports.
+- **Primitive, single-responsibility public APIs.** Callers compose:
+  construct → configure → one concern → read result. Each public
+  method does one named thing.
+- **Inline until the second real use.** A helper used in exactly one
+  place stays inline (or a private method on the owning type). Extract
+  only at a second call site, or when a unit test must target that unit.
+
+### Forbid
+
+- **Factory functions as the primary constructor story.** No
+  `make_foo` / `build_bar` / `create_*` wrappers around construction.
+  Prefer `Foo(...)`. Explicit alternate constructors only when they
+  have distinct semantics (`Foo.from_file`, `Foo.empty`) — not
+  `make_foo` aliases of `__init__`.
+- **God data structures.** No mega-dict / mega-struct / ambient
+  "context" blob every layer reaches into. Pass the few fields a call
+  needs, or a narrow typed view. Split types that accumulate more
+  than one coherent responsibility.
+- **All-in-one façade APIs.** No public `run_everything` /
+  `compute_all` / `pipeline` that hides multi-step work. Composition
+  is the **caller's** job (scripts, docs examples, `regressions/`).
+  The library exposes primitives only.
+
+### Shape check (before adding a public symbol)
+
+1. Natural owning type? → method on that type, not a free function.
+2. More than one user-visible step? → split into primitives.
+3. Only one in-tree call site? → do not extract.
+4. Tempted to hang another field on a "context" bag? → new parameter
+   or smaller type instead.
+
+### Tests (default)
+
+- Unit tests **only** under `tests/`, path mirrors source
+  (`src/foo/boo.py` → `tests/test_foo/test_boo.py`), types mirror
+  (`FooClass` → `TestFooClass`). Single-function tests — no e2e under
+  `tests/`. Public-API scenarios → `regressions/` with **hard-coded**
+  goldens (no live third-party oracles). Details: `tester` agent.
+
 ## Default workflow
 
 For non-trivial work, prefer:
-1. plan (`/mol:spec` or write to `.claude/notes/`)
+1. plan (`/mol:spec` or free-form → discuss / grill)
 2. implement (`/mol:impl` or `/mol:fix`)
 3. review (`/mol:review`)
-4. capture decisions (`/mol:note`)
+4. capture decisions (`/mol:note` — harness sync, not append-only)
 
 ## What must never change casually
 
@@ -333,7 +409,7 @@ For non-trivial work, prefer:
      If a section grows past a screen, promote to .claude/notes/<topic>.md. -->
 ```
 
-If user opts into `mol` plugin contract: prepend `mol_project:` YAML per `rules/claude-md-metadata.md`; route body references to chosen `notes_path` and `specs_path`. Default `stage: experimental` (right answer pre-1.0; per `rules/stage-policy.md` allowed values are `experimental`, `beta`, `stable`, `maintenance`). If Step 1 found `1.x.y` on disk (`pyproject.toml` / `Cargo.toml` / `package.json`), surface and ask whether `stable` instead — still default `experimental` if no pick.
+If user opts into `mol` plugin contract: prepend `mol_project:` YAML per `rules/claude-md-metadata.md`; route body references to chosen `notes_path` and `specs_path`. Set `arch.rules_section: "## Design preferences (default)"` unless the project already has a richer Architecture heading (then point `rules_section` at that heading **and** keep Design preferences in the managed body — agents always load Design preferences when present). Default `stage: experimental` (right answer pre-1.0; per `rules/stage-policy.md` allowed values are `experimental`, `beta`, `stable`, `maintenance`). If Step 1 found `1.x.y` on disk (`pyproject.toml` / `Cargo.toml` / `package.json`), surface and ask whether `stable` instead — still default `experimental` if no pick.
 
 ---
 

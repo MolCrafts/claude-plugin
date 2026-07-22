@@ -26,7 +26,7 @@ Form: `<plugin>:<skill-name> [<description>]`.
 
 Validate:
 
-- `<plugin>` ∈ `mol`, `mol-plugin` (or another existing dir under `plugins/`).
+- `<plugin>` ∈ `mol`, `molexp`, `molq`, `mol-plugin` (or another existing dir under `plugins/`).
 - `<skill-name>` is kebab-case, no spaces, not already taken.
 - Description, if given, is one sentence.
 
@@ -37,7 +37,8 @@ Fail validation → report and stop.
 Read one existing SKILL.md under the same plugin. Default models:
 
 - `mol` → `plugins/mol/skills/note/SKILL.md`
-- `mol-agent` → `plugins/mol-agent/skills/check/SKILL.md` (read-only) or `plugins/mol-agent/skills/update/SKILL.md` (writing)
+- `molexp` → `plugins/molexp/skills/adopt-workspace/SKILL.md`
+- `molq` → `plugins/molq/skills/jobs/SKILL.md`
 - `mol-plugin` → `plugins/mol-plugin/skills/check/SKILL.md`
 
 Match structure (not content): frontmatter (`name` + `description` + `argument-hint`), Codex adapter directive, H1 `/<plugin>:<skill>` heading, one-paragraph purpose, numbered Procedure, optional Guardrails, optional Idempotency, Output format.
@@ -51,6 +52,7 @@ Extract from description + prior conversation:
 - **Outputs.** Files written, agents invoked, user-facing shape, F2 one-line summary.
 - **Boundaries.** Read-only vs writing; what it refuses to touch; relation to neighbors (`/mol:spec` vs `/mol:note`, `/mol:fix` vs `/mol:impl`).
 - **Invoker class.** **User-invoked** (`disable-model-invocation: true` + `agents/openai.yaml` with `policy.allow_implicit_invocation: false`) when only the human should fire it and **no** sibling will auto-invoke it. **Model-invoked** (omit the flag; optional `allow_implicit_invocation: true`) when the model or another skill must reach it. **Invoker rule:** if skill A auto-invokes skill B, B is model-invoked. See `plugins/mol/rules/design-principles.md` § 2.5. Prefer a thin user entry + model-invoked body only when the same procedure needs both deliberate typing and auto-call (e.g. `/mol:grill` → `/mol:grilling`).
+- **Free-form tier (A–E).** For model-invoked skills, pick a tier from § 2.6 and bake **trigger phrases** (Chinese + English) plus when *not* to fire into `description` — that description is the always-on index card. Do not create a second skill file just for indexing.
 
 Any unclear → **ask 1–2 targeted questions**. Never write with gaps.
 
@@ -61,7 +63,7 @@ Frontmatter:
 ```markdown
 ---
 name: <skill-name>
-description: <one or two sentences captured verbatim from the user's intent; mention read-only vs. writes; mention any sibling-skill relationship that defines the boundary>
+description: <intent + free-form triggers (zh/en) + when not to fire + read-only vs writes + sibling boundary; see design-principles § 2.6>
 # user-invoked only (omit both lines for model-invoked):
 # disable-model-invocation: true
 argument-hint: "<concrete shape — e.g. <arg>, [arg], <arg> [<arg>], <a | b | c>>"

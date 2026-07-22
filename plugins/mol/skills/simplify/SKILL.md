@@ -1,6 +1,6 @@
 ---
 name: simplify
-description: Backward-compat gatekeeper + hygiene cleanup for the current diff, behavior-preserving under a test gate. Auto-invoked by `/mol:impl` Step 6.5; also runnable standalone after `/mol:review` to clean up dead code, magic numbers, and stage-appropriate legacy.
+description: Hygiene + stage-aware backward-compat on the current diff (behavior-preserving, test gate). Auto from /mol:impl; free-form 整理代码/tidy/cleanup. Load this skill — don't hand-edit cruft in bare chat.
 argument-hint: "[path or list of files]"
 ---
 
@@ -48,7 +48,10 @@ Write-mode counterpart to `janitor` (read-only). See `plugins/mol/rules/agent-de
 
 ### 2. Snapshot test gate
 
-Run `$META.build.check` and `$META.build.test`. Record passing list + pre-existing failures. Revert criterion is "no new failures vs snapshot," not "all green." Pre-existing failures are baseline — proceed without asking.
+Run `$META.build.check` and `$META.build.test`. Record passing list + pre-existing failures.
+
+- **Regression gate for this skill's edits:** revert if you introduce *new* failures vs the snapshot (not "suite must be fully green before simplify starts").
+- **Iron law (no silent debt):** pre-existing failures are **not** "ignore and move on." List them in the report as **priority debt**. If a failure sits in the simplify scope (touched files / same module) and is stage-allowed hygiene or a clear bug → fix it in this run (or hand to `/mol:fix` and stop). Never add skips or weaken tests to quiet them. Out-of-scope pre-existing red → name path + route (`/mol:fix …`) in the summary; do not omit.
 
 ### 3. Delegate to `janitor`
 
@@ -115,5 +118,7 @@ Second run on same scope finds zero `[apply]` candidates; reports zero changes o
 
 ## When to invoke
 
-- **Mandatory from `/mol:impl`** — Step 6.5 invokes this on the impl diff before close-out commit. Single point where per-stage backward-compat is enforced. Fully automatic — no operator de-select.
-- **Standalone** — after `/mol:review` flagged hygiene findings, or as periodic cleanup on the current uncommitted diff.
+- **Mandatory from `/mol:impl`** — § 3 invokes this on the impl diff before docs/finalize. Single point where per-stage backward-compat is enforced. Fully automatic — no operator de-select.
+- **Free-form (tier A)** — 整理代码 / 清理一下 / 去掉 debug / 收 diff / tidy / hygiene / cleanup / dead code / strip debug prints on the current uncommitted diff or named paths.
+- **After `/mol:review`** — when the hygiene axis flagged apply-able findings.
+- **Not for** structural splits, public API renames, or duplication extraction → those are `/mol:refactor`.

@@ -28,6 +28,24 @@ A skill or agent that prescribes ten exact steps is brittle. A skill
 that names three principles and trusts the agent to apply them is
 durable. Prefer the second.
 
+### 0.1 Project iron law — no silent debt
+
+Bootstrapped projects ship this in CLAUDE.md under Design preferences.
+It is a **product** iron law for every MolCrafts repo, not optional
+style:
+
+- Discovering an anti-pattern, pre-existing failure, or broken
+  invariant in the working surface → **prioritize fix or hard-stop
+  with a route** (`/mol:fix` / `/mol:refactor` / supersede). Never
+  ignore, baseline-away, or paper over with skips / weaker tests.
+- "Stay in scope" and "minimal diff" do **not** license knowingly
+  leaving rot you have already seen. Unmentioned discoveries are a
+  process failure.
+
+Skills that snapshot "pre-existing red" for *their own* regression
+gates (e.g. `/mol:simplify`) must still **surface** those failures as
+priority debt and must not treat silence as success.
+
 ## 1. Four-Zone Layering
 
 Every well-shaped repository separates four kinds of content. Mixing them
@@ -173,28 +191,62 @@ Pick model-invocation only when the agent must reach the skill on its
 own, or another skill must. If it only ever fires by hand and nothing
 in the chain calls it, make it user-invoked and pay no context load.
 
+**Description = the index card.** For model-invoked skills, free-form
+auto-trigger is driven by a good frontmatter `description` (intent
+phrases in Chinese and English, when *not* to fire, sibling boundaries).
+That is the always-on index; the full `SKILL.md` body loads only when
+the Skill tool runs. Do **not** invent a second thin skill file just
+to hold an index — dual files (`/mol:grill` + `/mol:grilling`) are only
+for the invoker split above.
+
 Canonical plan chain under this rule:
 
 ```
 /mol:discuss ──converge──▶ /mol:grilling (plan)
                               │
-                              ▼ (user types)
+                              ▼ (user says 落盘 / 写 spec — not silent)
                           /mol:spec ──persist──▶ /mol:grilling (spec-audit)
                                                     │ holes → supersede in place
-                                                    │ clean → /mol:impl-all (auto, end-to-end)
+                                                    │ clean → /mol:impl-all (auto)
+                                                              │
+                                                              ▼
+                                                    simplify → docs Mode A
+                                                    (public surface) → close
 ```
+
+### 2.6 Free-form auto-trigger (tiers A–E)
+
+Operators should not need to type `/mol:…` for routine intent. The
+model matches natural language to model-invoked skills. Use tiers so
+"lazy" does not become "silent irreversible work."
+
+| Tier | Meaning | Free-form? | Examples |
+|---|---|---|---|
+| **A** | Must load the skill on matching intent; prefer chain auto where listed | Yes | `discuss`, `grilling` (has plan), `simplify`, `docs` Mode A, `note` (harness sync) |
+| **B** | Load on clear scene match; skip casual turns | Yes, scoped | `debug`, `fix`, `review`, `map`, `test`, `litrev`, `ci-sync` |
+| **C** | One-sentence ignition — user affirms; no silent fire | Oral OK, no slash required | `spec`, `commit`, `push`, `pr`, `refactor`, `bootstrap`, `docs` Mode B |
+| **D** | Chain/subroutine only; weak free-form need | Via siblings | `close`, `ship`, `tag`, `impl` after spec, `bench`/`web` when owed |
+| **E** | Model must not silent-fire | User-only or hard gate | `grill` entry, `release`, `mol-plugin:release` |
+
+**Rules.** (1) A/B: put zh/en triggers in `description`. (2) C: oral
+ignition OK ("落盘", "提交吧") — still needs affirmative intent.
+(3) Never silent-auto `spec` from discuss/grill. (4) `docs` Mode A =
+tier A (impl public surface); Mode B = tier C only. (5) No dual-file
+index pairs — description *is* the index.
 
 ### Autonomy boundary
 
 **Interactive (may wait on the human):** only `/mol:discuss`, `/mol:grill`,
 `/mol:grilling`, and the interview turns inside `/mol:spec`'s post-persist
-grill. Planning decisions are human.
+grill. Planning decisions are human. Spec *ignition* is human (tier C)
+even when the model loads `/mol:spec` without a slash.
 
 **Fully agent-driven (never wait for approval / "what next?"):** implement,
-close, simplify, commit, push, pr, tag, release, bench, web, ship gates,
-fix/refactor apply loops once kicked, bootstrap repairs that are
-mechanical. Closing a spec is **never** the human's job — `/mol:close`
-auto-runs evaluators and agent-auto-attests remaining criteria.
+close, simplify, docs Mode A (public-surface), commit, push, pr, tag,
+release, bench, web, ship gates, fix/refactor apply loops once kicked,
+bootstrap repairs that are mechanical. Closing a spec is **never** the
+human's job — `/mol:close` auto-runs evaluators and agent-auto-attests
+remaining criteria.
 
 Two publish chains (never mix them):
 
@@ -223,9 +275,15 @@ Two publish chains (never mix them):
 ## 4. Knowledge Hierarchy
 
 ```
-.claude/notes/notes.md   evolving decisions, captured by /mol:note
+/mol:note  (sync — not append)
+        │  reconcile · delete fossils · single canonical home
+        ▼
+.claude/notes/notes.md     staging / evolving rules (topic-keyed)
+.claude/notes/<topic>.md   long stable rules
+.claude/notes/architecture.md   blueprint (owned by /mol:map; note may
+                                strike false claims only)
         │
-        ▼ promotion when stable
+        ▼ promotion when stable (and delete the staging copy)
    CLAUDE.md  ◀──────── thin router — read by every agent
         │
         ▼
@@ -236,10 +294,17 @@ Two publish chains (never mix them):
                   ephemeral work-in-flight.
 ```
 
+**Harness knowledge is current truth, not a changelog.** `/mol:note`
+must **rewrite or delete** superseded and stale entries across
+CLAUDE.md and `.claude/notes/**` so agents are not polluted by
+contradictory fossils. Git history is the archive; agent-facing files
+keep one live rule per topic. Appending a second note that conflicts
+with an older one is a design bug.
+
 Every agent's first line is *"Read CLAUDE.md and the project's notes
 file before running any checks."* Project-specific facts live in
 CLAUDE.md (with the `mol_project:` frontmatter for machine-readable
-keys) or in the notes file. Agent prompts hold only **unique
+keys) or in the notes tree. Agent prompts hold only **unique
 knowledge** the agent needs that does not belong in CLAUDE.md
 (tolerances, anti-pattern catalogs, grep heuristics, floating-point
 conventions).

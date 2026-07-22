@@ -29,10 +29,10 @@ Sections (in order, all mandatory):
 
 - **Summary** — one paragraph; user-visible outcome. Plain prose, no bullets.
 - **Domain basis** — equations, refs with DOI/arXiv, units. Required iff `$META.science.required` AND spec declares physics. Fold `scientist_output` refs verbatim if provided.
-- **Design** — entities touched, new symbols, lifecycle / ownership. Not a Summary restatement. Ends with a **Reuse decision** sub-block resolving *every* `librarian_report` reuse candidate: `reuse <symbol>` (spec calls it) / `generalize <symbol>` (spawns a "Generalize …" task promoting the existing implementation to serve both callers) / `new — <one-line why neither fits>`. Never design a symbol that reimplements a candidate tagged `reuse` or `generalize`; new-symbol naming, construction, and error handling follow the report's Closest pattern so the new code reads like the existing code.
+- **Design** — entities touched, new symbols, lifecycle / ownership. Not a Summary restatement. **Default shape** from CLAUDE.md `## Design preferences (default)`: OOP types + primitive single-responsibility methods; no factory functions, god context blobs, one-shot abstractions, or all-in-one façades — unless the user request (or a scoped note) **explicitly** requires functional style for this feature. Ends with a **Reuse decision** sub-block resolving *every* `librarian_report` reuse candidate: `reuse <symbol>` (spec calls it) / `generalize <symbol>` (spawns a "Generalize …" task promoting the existing implementation to serve both callers) / `new — <one-line why neither fits>`. Never design a symbol that reimplements a candidate tagged `reuse` or `generalize`; new-symbol naming, construction, and error handling follow the report's Closest pattern so the new code reads like the existing code.
 - **Files to create or modify** — bulleted concrete file paths (no globs). Mark new files: `(new)` after path.
 - **Tasks** — see § 2; mandatory; every file in Files-to-create-or-modify must appear in ≥1 Tasks item.
-- **Testing strategy** — happy path, edge cases, and (if `$META.science.required`) domain validation enumerated. Also names the spec's **regression example**: one minimal end-to-end script under `regressions/` (repo root — never inside the unit-test tree) exercising the feature through the public API only, as a library-external user would. Physics declared → a textbook / literature case with citation and reference values (fold from `scientist_output`); otherwise a canonical minimal use-case with its expected output.
+- **Testing strategy** — unit tests only under `tests/`, paths mirroring `src/` (e.g. `src/foo/boo.py` → `tests/test_foo/test_boo.py`), types mirrored (`FooClass` → `TestFooClass`). Each unit test targets a **single function/method** — no e2e under `tests/`. Enumerate happy path, edge cases, and (if `$META.science.required`) domain validation with **hard-coded** expected values. Also names the spec's **regression example**: one minimal public-API script under `regressions/` (repo root — never inside `tests/`). If a third-party oracle was used to obtain goldens, the regression must **embed those values as literals** (comment: tool, version, command, date) — never import or subprocess the third party at test time. Physics → textbook case + citation + hard-coded refs; otherwise minimal use-case + expected output.
 - **UI verification** — *optional; only when the spec touches a frontend.* Bulleted, observable browser checks for ad-hoc `/mol:web` runs. **Non-binding**: these never become acceptance criteria and never gate `done`.
 - **Out of scope** — present even if "none". Empty section is a smell — if "none", confirm alternatives were considered.
 
@@ -43,10 +43,10 @@ Format:
 ```markdown
 ## Tasks
 
-- [ ] Write failing tests for <component> (<path/to/test_file>)
+- [ ] Write failing unit tests for <Component> (tests/test_<pkg>/test_<mod>.py → Test<Component>)
 - [ ] Implement <symbol> in <path>
 - [ ] Add docstring per <doc.style> with units
-- [ ] Add regression example regressions/<slug>.<ext> (end-to-end, public API only)
+- [ ] Add regression example regressions/<slug>.<ext> (public API only; hard-coded goldens, no third-party runtime)
 - [ ] Verify against <validation case>
 - [ ] Run full check + test suite
 ```
@@ -54,8 +54,9 @@ Format:
 Rules:
 
 - Each item **concrete, atomic, checkable** (one observable change).
+- Unit-test paths in Tasks **must** follow `tests/` mirror layout from `plugins/mol/agents/tester.md` — never e2e under `tests/`.
 - A `generalize` verdict in Design's Reuse decision spawns a "Generalize `<symbol>` in `<path>` to cover `<new case>`" task **instead of** a parallel "Implement" task.
-- Exactly one "Add regression example `regressions/<slug>.<ext>`" task per spec, after the implementation tasks and before the final full-suite task.
+- Exactly one "Add regression example `regressions/<slug>.<ext>`" task per spec, after the implementation tasks and before the final full-suite task. Goldens are hard-coded; third-party software is offline-only.
 - Aim 4–10 tasks. Per `plugins/mol/rules/large-spec-split.md`, return `Status: split-needed` if **any** of: Tasks > **10**, Files crosses > 1 architectural layer / package / crate per `$META.arch.style`, or spec introduces a new top-level concept (LARGE per `/mol:impl` Step 1). Caller auto-splits — proposed cut must be sound.
 - Verbs first ("Write…", "Implement…", "Verify…").
 - **RED-before-GREEN** — every "Write failing tests for X" precedes its "Implement X".
@@ -116,7 +117,7 @@ Rules:
 
 - `id` starts at `ac-001` and increments. Supersede → restart at `ac-001` (spec body rewritten → fresh contract).
 - Pick **narrowest type that suffices**. Split into multiple if it spans categories.
-- Always emit one `type: runtime` criterion for the regression example — `pass_when` names the `regressions/<slug>.<ext>` script and the reference values / tolerance it must reproduce. Keep it `runtime` (verified by `/mol:impl` at delivery), **not** `scientific` — the example lives in this repo's `regressions/`, not the external bench repo.
+- Always emit one `type: runtime` criterion for the regression example — `pass_when` names the `regressions/<slug>.<ext>` script and the **hard-coded** reference values / tolerance it must reproduce (no live third-party). Keep it `runtime` (verified by `/mol:impl` at delivery), **not** `scientific` — the example lives in this repo's `regressions/`, not the external bench repo.
 - **Never emit `type: ui_runtime`.** Browser-verifiable behaviors go into the spec body's **UI verification** section instead — non-binding, verified ad hoc by `/mol:web`, never gating `done`.
 - `pass_when` is the binding bar — third party verifies yes/no without rereading spec.
 - `status: pending` on every fresh criterion. **Never emit `verified` or `failed`** — only `/mol:impl` (for `code`/`runtime`) and runtime evaluator skills (for their type) write those, per `evaluator-protocol.md` § *Field semantics*. Supersede/refine regenerates the block — every `id` resets to `pending` even if old spec had `verified`.

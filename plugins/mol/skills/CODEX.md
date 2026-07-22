@@ -9,6 +9,13 @@ Apply this file only when Codex loads a skill from this plugin. Claude Code foll
 - Preserve `/mol:<name>` in user-facing output. In Codex, it means the sibling skill at `../<name>/SKILL.md`, selected through the skill picker or loaded explicitly by another workflow.
 - Treat invocation text supplied with the selected skill as `$ARGUMENTS`.
 
+## Invokers (user vs model) + free-form tiers
+
+Free-form auto-trigger (tiers A–E) is defined in
+`plugins/mol/rules/design-principles.md` § 2.6. Description text is
+the index card for model-invoked skills; dual skill files are only
+for the user-entry vs body invoker split (§ 2.5), not for indexing.
+
 ## Invokers (user vs model)
 
 Claude and Codex use different knobs for the same split (see

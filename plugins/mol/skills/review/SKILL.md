@@ -1,6 +1,6 @@
 ---
 name: review
-description: Multi-axis static code review with one aggregated verdict.
+description: Multi-axis static review with one verdict. Free-form before commit/PR: 看看这 diff/review this — not every casual turn. Optional --axis=. Read-only.
 argument-hint: "[<path> ...] [--axis=<name>[,<name>...]]"
 ---
 
@@ -93,6 +93,8 @@ BLOCK
 ```
 
 `/mol:review` must render exactly what `reviewer` returns.
+
+**No silent debt:** every finding is in-scope for prioritization. Do not drop "pre-existing" issues from the table. Verdict stays honest — known rot that blocks quality is still REQUEST CHANGES / BLOCK when severity warrants.
 
 ## 4. Final summary
 

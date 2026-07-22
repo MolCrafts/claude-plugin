@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Convert a natural-language requirement into a structured spec under `.claude/specs/` plus a binding `<slug>.acceptance.md` contract that defines "done". Persists both files, then auto-invokes `/mol:grilling` in spec-audit mode — material holes supersede in place; clean audits point to `/mol:impl`. Use to start any non-trivial feature; detects conflicts with existing specs and supports Chinese and English.
+description: Requirement → structured spec + acceptance under `.claude/specs/`, then auto grill (spec-audit) → clean auto impl-all. Tier C: 落盘/写 spec/spec this (slash optional); never silent from discuss/grill.
 argument-hint: "<feature description>"
 ---
 

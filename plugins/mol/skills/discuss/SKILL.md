@@ -1,6 +1,6 @@
 ---
 name: discuss
-description: Free-form design / improvement / scientific-insight discussion that drives toward convergence, then auto-invokes `/mol:grilling` on the agreed requirement (or discards the thread). Use for exploratory threads (vs `/mol:spec` for already-clear requirements, `/mol:grilling` for hardening an already-formed plan, or `/mol:note` for decided rules); read-only; supports Chinese and English.
+description: Structured design discussion with Convergence pulse; converge → auto /mol:grilling, or discard. Free-form: 该不该做/几种方案/should we/trade-offs — load this skill, not bare chat. Not for clear specs (/mol:spec), formed plans (/mol:grilling), or decided rules (/mol:note). Read-only.
 argument-hint: "<topic or question>"
 ---
 
@@ -47,7 +47,7 @@ When pulse reads "converging" *and* open list is empty (or user accepts remainin
    - relevant file paths from Step 1
 2. Tell the user briefly: *"converged — entering `/mol:grilling` to stress-test the plan before you spec."*
 3. **Auto-invoke `/mol:grilling`** in **plan** mode with the one-paragraph requirement + Context block as the plan under test. Use the Skill tool (Claude) or read-and-execute `../grilling/SKILL.md` (Codex). Never call user-only `/mol:grill`.
-4. After grilling finishes, its own handoff applies: sharpened plan → user runs `/mol:spec` when ready. **Do not** invoke `/mol:spec` from discuss.
+4. After grilling finishes, its own handoff applies: sharpened plan → tell the user they can ignite spec with a short phrase (落盘 / 写 spec / "spec this") — slash optional. **Do not** invoke `/mol:spec` from discuss (tier C gate).
 
 ### 4. Discard cleanly
 
@@ -56,7 +56,7 @@ When pulse reads "diverging" or "stuck" for two consecutive turns, when user cha
 - say so explicitly + name the reason in one sentence (e.g. *"discarded — depends on a decision in `auth/` that hasn't been made yet"*)
 - write nothing: no notes, no draft spec, no `.claude/notes/` entry, no `.claude/specs/` entry
 - do **not** invoke grilling
-- if a *stable rule* fell out (rare), suggest user run `/mol:note` separately — do not promote yourself
+- if a *stable rule* fell out (rare), suggest `/mol:note` (harness sync — will supersede fossils, not append) — do not write notes yourself
 
 Discard is first-class. Not-converging is fine; shipping a half-decided spec is not.
 

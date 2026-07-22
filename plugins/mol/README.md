@@ -121,30 +121,29 @@ reach for it, and a one-line example.
 
 | Skill | What | When | Example |
 |---|---|---|---|
-| `/mol:bootstrap` | Initialize or maintain the agent harness (CLAUDE.md + `.claude/notes/` + `.claude/specs/`). Three paths: no harness → create fresh; harness exists → audit + repair; healthy harness → single-line no-op. Never writes project source. | First time in a project; after upgrading mol; when harness has drifted. | `/mol:bootstrap` |
-| `/mol:adopt-workspace` | Adopt an arbitrary existing data directory as a molexp-compatible workspace (`Workspace → Project → Experiment → Run` folder family). Inspects the source, proposes a mapping for operator review, materializes via molexp's Python API, then copy-verifies (default) or move-verifies each file with SHA-256. Resumable via an on-disk ledger; copy-mode optionally deletes the source after a typed-path gate. | Lifting legacy experimental data into a fresh molexp workspace; consolidating ad-hoc result folders. | `/mol:adopt-workspace ./old-results ./new-workspace` |
+| `/mol:bootstrap` | Initialize or maintain the agent harness. Managed CLAUDE.md includes **Design preferences (default)** (OOP, no factories, no god data, no all-in-one APIs, tests-mirror-src) and the **iron law — no silent debt** (discovered anti-patterns / pre-existing failures are prioritized or hard-stop routed, never ignored). Three paths: create / audit+repair / no-op. Never writes project source. | First time in a project; after upgrading mol; when harness has drifted. | `/mol:bootstrap` |
 
 ### 1 — Plan & specify
 
 | Skill | What | When | Example |
 |---|---|---|---|
-| `/mol:discuss <topic>` | Free-form design / improvement / scientific-insight discussion. Frames the topic, drives toward convergence with an explicit per-turn `Convergence pulse`, and exits one of two ways: **converge** → packages a one-paragraph requirement and **auto-invokes `/mol:grilling` (plan mode)**; **discard** → leaves no artifacts. Hard 8-turn cap. Read-only. Never auto-invokes `/mol:spec`. | When the requirement isn't yet clear enough for `/mol:spec` and you want to think it through with the agent. | `/mol:discuss should /mol:web own remote dev servers?` |
-| `/mol:grill <plan>` | **User-only entry** (`disable-model-invocation: true`). Thin wrapper that runs `/mol:grilling` in plan mode. Other skills must call `/mol:grilling` directly. | When you deliberately want to type a grill session on a plan you already have. | `/mol:grill cache force results per-frame keyed on neighbor-list hash` |
-| `/mol:grilling [mode] <plan\|slug>` | **Model-invoked** body. Relentless one-question-at-a-time interview; recommended answers; self-answers from the codebase; per-turn `Grill pulse`. Modes: **plan** (default) — sharpen a free-form plan → hand off to user for `/mol:spec`; **spec-audit** — stress-test a written spec → `audit_result: clean \| supersede_needed` (caller writes). Auto-invoked by `/mol:discuss` (plan) and `/mol:spec` (spec-audit). Read-only on source and specs. | Auto from discuss/spec, free-form “grill me”, or via `/mol:grill`. | `/mol:grilling mode:spec-audit morse-bond` |
-| `/mol:spec` | Natural-language requirement → structured `<slug>.md` + binding `<slug>.acceptance.md` under `.claude/specs/`. Gated on a mandatory `librarian` codebase scan: every reuse candidate (tagged `reuse` / `generalize`) must be resolved in the spec's Design § Reuse decision — reimplementing an existing capability instead of reusing or generalizing it is invalid. Bulk drafting + self-validation is delegated to `spec-writer`. Skill persists both files immediately, then **auto-invokes `/mol:grilling` (spec-audit)** — material holes supersede in place; clean audits point to `/mol:impl`. | Before starting any non-trivial implementation. | `/mol:spec add Morse bond potential to molpy` |
+| `/mol:discuss <topic>` | Free-form design discussion with `Convergence pulse`. **Tier A** free-form auto (该不该做 / trade-offs). Converge → auto `/mol:grilling` (plan); discard → no artifacts. Hard 8-turn cap. Never auto-invokes `/mol:spec` (tier C ignition: 落盘 / 写 spec). | Requirement not clear enough for `/mol:spec`. | `/mol:discuss should /mol:web own remote dev servers?` |
+| `/mol:grill <plan>` | **User-only entry** (`disable-model-invocation: true`). Thin wrapper → `/mol:grilling` plan mode. Free-form/model paths call `/mol:grilling` directly. | Deliberately typing a grill session. | `/mol:grill cache force results per-frame keyed on neighbor-list hash` |
+| `/mol:grilling [mode] <plan\|slug>` | **Model-invoked** body (**tier A** when a plan exists). Modes: **plan** → sharpened plan + tier C handoff to spec; **spec-audit** → `clean \| supersede_needed`. Auto from discuss/spec; free-form 盘问/grill. | Auto or free-form stress-test. | `/mol:grilling mode:spec-audit morse-bond` |
+| `/mol:spec` | Requirement → `<slug>.md` + acceptance under `.claude/specs/`, then auto grill (spec-audit) → clean auto `impl-all`. **Tier C** — say 落盘 / 写 spec (slash optional); never silent from discuss/grilling. | Binding artifact for non-trivial work. | `/mol:spec add Morse bond potential to molpy` |
 | `/mol:litrev` | Literature + reference-implementation review (gated on `mol_project.science.required`). Returns equations, validation targets, open questions. | Before specifying a domain-critical feature. | `/mol:litrev Nose-Hoover thermostat` |
 
 ### 2 — Implement (writes code)
 
 | Skill | What | When | Example |
 |---|---|---|---|
-| `/mol:impl` | Full TDD workflow gated on an approved spec + acceptance contract — pure orchestration: `tester` writes the RED tests and the spec's `regressions/` end-to-end example, `implementer` writes the production code, the main loop gates, ticks, and verifies (the regression example must reproduce its reference values before finalize). Resume-syncs already-done tasks before writing new code. Ticks the spec's checkboxes as it progresses; flips each `code` / `runtime` acceptance criterion to `status: verified` at close-out. Ends every run by auto-invoking `/mol:simplify` and `/mol:close` — no prompts. Parks at `status: code-complete` only if runtime-evaluator-typed criteria (`scientific` / `performance` / `docs`, legacy `ui_runtime`) are still `pending` after auto-close. | After `/mol:spec` has written the spec (`status: approved`). | `/mol:impl morse-bond` |
+| `/mol:impl` | Full TDD workflow gated on an approved spec + acceptance — orchestration only. Ends every run by auto `/mol:simplify` → **`/mol:docs` Mode A** when the diff touches public surface → `/mol:close` (with auto evaluators). Parks at `code-complete` only if runtime-evaluator-typed criteria remain pending. | After `/mol:spec` (`status: approved`). | `/mol:impl morse-bond` |
 | `/mol:impl-all <prefix>` | Batch-implement a spec chain (`<prefix>-01-*`, `<prefix>-02-*`, …) end-to-end. Discovers matching specs, sorts by numeric suffix, then drives the chain in its own agentic loop — each spec runs `/mol:impl` + `/mol:commit` + auto `/mol:close`, with an independent cheap-model evaluator confirming the terminal state between specs. Never stops to ask questions. Stops on stall. | When a feature is split into a spec chain and you want hands-off execution. | `/mol:impl-all morse-bond` |
 | `/mol:close <slug> [--manual]` | The closing counterpart to `/mol:impl`. Advances a `code-complete` spec to `done` by re-checking the acceptance ledger and deleting the spec + acceptance + INDEX entry. Auto-invoked (default mode) by `/mol:impl` and `/mol:impl-all` after every finished spec; also runnable standalone. Default mode assumes a runtime evaluator (`/mol:bench`, `/mol:web`) already flipped the remaining criteria. `--manual` (operator-only, never automatic) asserts observably-met criteria without an evaluator; flips `pending` → `verified` with a `verified_by: human` audit note. | Standalone: after an owed evaluator has run, or with `--manual` when no evaluator is available. | `/mol:close morse-bond` &nbsp;·&nbsp; `/mol:close morse-bond --manual` |
 | `/mol:fix` | Minimal-diff bug fix — reproduce, consume an existing `/mol:debug` report or delegate diagnosis to `debugger` (Step 2), patch the smallest surface via `implementer` (Step 3), verify. Calls `tester` for a regression test when the root cause suggests a missing one. | When a test fails or a bug is reported. | `/mol:fix energy NaN at zero distance` |
 | `/mol:refactor` | Restructure code while preserving all architectural invariants. Snapshot → incremental change → re-verify. Calls `architect` pre and post. | When the structure needs to change but behavior must not. | `/mol:refactor split forces module by backend` |
 | `/mol:ci-sync [<root>]` | Audit and repair CI / pre-commit parity — write-mode counterpart of the `ci-guard` agent. Delegates the audit to `ci-guard`, then patches `.pre-commit-config.yaml` and the CI workflow so both sides run identical commands from `mol_project.build`; scaffolds both files for projects that have neither. Writes config files only, never source. | When CI catches things pre-commit missed (or vice versa); when adopting a project with no CI at all. | `/mol:ci-sync` |
-| `/mol:simplify` | Apply `janitor`'s hygiene findings as the write-mode counterpart — dead code, debug residue, magic-literal substitution, captured-rule naming drift — **and** enforce the language-canonical toolchain trio on the verify gate (Python: `ruff` + `ty`; TypeScript: `biome` + `tsc`; Rust: `cargo fmt` + `clippy` + `cargo check`); a regression in any of them reverts the entire batch. Behavior-preserving by contract. Mandatorily invoked by `/mol:impl` Step 6.5 as the single backward-compat gatekeeper (delete legacy at `experimental`, deprecation-shim at `stable`, migration-note flag at `beta`, leave alone at `maintenance`). | After `/mol:impl` finishes, before `/mol:commit`, to strip cruft accumulated during exploration; or anywhere `/mol:review`'s hygiene axis flagged drift. | `/mol:simplify` |
+| `/mol:simplify` | Hygiene + stage-aware backward-compat on the current diff (dead code, debug residue, naming drift, toolchain trio). Behavior-preserving; whole-batch revert on regression. **Tier A** free-form (整理代码 / tidy / cleanup). Mandatory from `/mol:impl` § 3b. | After impl, after review hygiene, or free-form on a dirty diff. | `/mol:simplify` |
 
 ### 3 — Review (read-only)
 
@@ -166,8 +165,8 @@ reach for it, and a one-line example.
 
 | Skill | What | When | Example |
 |---|---|---|---|
-| `/mol:docs` | Mode A: docstring audit keyed to `mol_project.doc.style` (google / rustdoc / jsdoc-tiered / doxygen). Mode B: narrative tutorial (with mandatory two-part Part 1 derivation + Part 2 code mapping for science topics). | After implementing a public API; when adding a tutorial; when an audit finds drift. | `/mol:docs molpy.forces.morse` &nbsp;·&nbsp; `/mol:docs tutorial: running your first MD` |
-| `/mol:note` | Capture an architectural decision into `.claude/notes/notes.md`. Detects conflicts with existing notes / CLAUDE.md, cleans up stale notes, and promotes stable rules into CLAUDE.md (or a `.claude/notes/<topic>.md` page). | When a non-obvious convention is decided in conversation and would otherwise be re-derived later. | `/mol:note use n_atoms (not natoms) in all public signatures` |
+| `/mol:docs` | Mode A: docstring/API audit+apply per `mol_project.doc.style` — **tier A**, auto from `/mol:impl` § 3c when public surface changes; free-form 补文档/missing docs. Mode B: narrative tutorial — **tier C** only (写教程); never auto from impl. | Public API bare; post-impl; or explicit tutorial ask. | `/mol:docs molpy.forces.morse` &nbsp;·&nbsp; `/mol:docs tutorial: running your first MD` |
+| `/mol:note` | **Harness knowledge sync** (not append-only). Reconciles a decided rule across `CLAUDE.md` + `.claude/notes/**`: supersede/delete fossils, stale sweep, single canonical home, promote stable rules. New decision wins on conflict. Free-form: 记下来 / 约定变了 / we decided / supersede. | When a convention is decided or an old note is wrong and would pollute agents. | `/mol:note use n_atoms (not natoms)` &nbsp;·&nbsp; `/mol:note supersede: forces live under molpy.potentials` |
 | `/mol:map [<scope>]` | Build or refresh `.claude/notes/architecture.md` — the passive project blueprint (modules, public surface, style summary, layer roles) consumed by `librarian` during `/mol:spec` Step 4.5. Delegates inventory to the `architect` agent; diffs against the existing blueprint; writes only after explicit user approval. Idempotent — a re-run with no drift exits without writing. | After significant architectural changes; before a sprint of new specs that need accurate placement / reuse advice. | `/mol:map` &nbsp;·&nbsp; `/mol:map src/forces/` |
 
 ### 6 — Git workflow (writes / pushes)
@@ -190,13 +189,13 @@ the standard GitHub fork convention: `origin` = your fork, `upstream`
 
 ```
 /mol:litrev <topic>           # only if science.required and you need refs
-/mol:discuss <topic>          # interactive; converges → auto /mol:grilling (plan)
-/mol:grill <plan>             # interactive entry → /mol:grilling (plan)
-/mol:spec <feature>           # interactive grill after write; then auto /mol:impl-all
-/mol:impl-all <slug|prefix>   # default implement path — end-to-end, auto close
-/mol:review                   # full static review, all axes
-/mol:release patch            # ecosystem libs: gates + commit/push/pr/tag
-/mol-plugin:release patch     # harness marketplace only
+/mol:discuss <topic>          # tier A free-form; converges → auto /mol:grilling (plan)
+# …or say 落盘 / 写 spec after grill (tier C) — slash optional
+/mol:spec <feature>           # grill after write → auto /mol:impl-all
+/mol:impl-all <slug|prefix>   # simplify → docs Mode A (public) → auto close
+/mol:review                   # tier B free-form before commit
+/mol:release patch            # user-only; ecosystem libs
+/mol-plugin:release patch     # user-only; harness marketplace
 ```
 
 ### Bug fix
@@ -234,7 +233,7 @@ Each owns one expertise axis. They split into two kinds —
 |---|---|---|---|
 | `architect` | reviewer | opus | Module boundaries, layer rules, dependency graph |
 | `debugger` | reviewer | opus | Failure root cause + fix recommendation + preventive-test idea (used by `/mol:debug` standalone; `/mol:fix` Step 2 consumes an existing report or delegates fresh) |
-| `tester` | producer-write (write-mode) / reviewer (analyze-mode) — dual-mode | opus | TDD red-before-green + `regressions/` end-to-end examples (public-API-only, literature-anchored) (write-mode); coverage gaps + tolerance discipline + regression-example presence (analyze-mode) |
+| `tester` | producer-write (write-mode) / reviewer (analyze-mode) — dual-mode | opus | Unit tests only under `tests/` mirroring `src/` (`TestFooClass`); single-function, no e2e in unit tree; `regressions/` public-API with **hard-coded** goldens (no live third-party); analyze-mode audits layout/naming/scope |
 | `implementer` | producer-write | opus | Executes one spec Task / one fix patch — minimal production code turning a RED test GREEN; never writes tests, never ticks/commits/reverts |
 | `scientist` | reviewer | opus | Equations, units, conservation, literature (every claim cites a fetched-this-run reference or derives inline) |
 | `compute-scientist` | reviewer | opus | Numerical stability, complexity, determinism, HPC / DDP readiness |

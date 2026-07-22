@@ -1,9 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
-  "name": "mol-plugin",
-  "displayName": "Mol Plugin",
+  "name": "molexp",
+  "displayName": "MolExp",
   "version": "0.12.0",
-  "description": "Maintenance toolkit for the MolCrafts marketplace \u2014 scaffold skills, unified check (structure + content + install smoke), and release.",
+  "description": "molexp data-workspace tooling \u2014 adopt legacy experiment directories into Workspace \u2192 Project \u2192 Experiment \u2192 Run.",
   "author": {
     "name": "MolCrafts"
   },
@@ -11,9 +11,10 @@
   "repository": "https://github.com/MolCrafts/molcrafts-harness",
   "license": "MIT",
   "keywords": [
-    "plugin-development",
-    "molcrafts",
-    "scaffolding",
-    "release"
+    "molexp",
+    "experiment",
+    "workspace",
+    "scientific-computing",
+    "molcrafts"
   ]
 }

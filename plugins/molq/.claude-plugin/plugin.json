@@ -1,9 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
-  "name": "mol-plugin",
-  "displayName": "Mol Plugin",
+  "name": "molq",
+  "displayName": "Molq",
   "version": "0.12.0",
-  "description": "Maintenance toolkit for the MolCrafts marketplace \u2014 scaffold skills, unified check (structure + content + install smoke), and release.",
+  "description": "molq job lifecycle via molmcp \u2014 list/status/logs, opt-in submit and cancel for local/SLURM/PBS/LSF.",
   "author": {
     "name": "MolCrafts"
   },
@@ -11,9 +11,10 @@
   "repository": "https://github.com/MolCrafts/molcrafts-harness",
   "license": "MIT",
   "keywords": [
-    "plugin-development",
-    "molcrafts",
-    "scaffolding",
-    "release"
+    "molq",
+    "hpc",
+    "slurm",
+    "job-queue",
+    "molcrafts"
   ]
 }

@@ -1,6 +1,6 @@
 ---
 name: impl
-description: Implementation workflow for one spec — TDD → implement → verify → auto simplify + auto close (with auto evaluators). For a chain prefix or multi-spec feature, prefer /mol:impl-all (or pass a prefix — this skill forwards). Fully agent-driven after a written spec; never asks the operator to close or pick next steps.
+description: One-spec TDD loop → verify → simplify → docs Mode A (public surface) → auto close. Chain/prefix → /mol:impl-all. Fully agent-driven; never asks the operator to close.
 argument-hint: "<slug | spec-prefix | feature description>"
 ---
 
@@ -10,7 +10,9 @@ argument-hint: "<slug | spec-prefix | feature description>"
 
 Read CLAUDE.md → parse `mol_project:` (`$META`); else emit adoption hint and stop. Print `[mol] stage: <value>`.
 
-`/mol:impl` orchestrates a **single** spec's Tasks checklist: pre-flight → iterate each task (RED → GREEN → tick) → verify → simplify → finalize (acceptance ledger + commit + auto evaluators + auto-close). `/mol:simplify` and `/mol:close` run automatically every pass — never prompt the operator for either. All stage-policy decisions delegate to `/mol:simplify`.
+`/mol:impl` orchestrates a **single** spec's Tasks checklist: pre-flight → iterate each task (RED → GREEN → tick) → verify → simplify → docs Mode A (public surface) → finalize (acceptance ledger + commit + auto evaluators + auto-close). `/mol:simplify`, `/mol:docs` Mode A (when applicable), and `/mol:close` run automatically every pass — never prompt the operator for them. All stage-policy decisions for hygiene/legacy delegate to `/mol:simplify`.
+
+**Iron law (CLAUDE.md Design preferences):** if impl work discovers a pre-existing failure, Design anti-pattern, or broken invariant in the touched/dependent surface → **prioritize** fix (local) or **stop** and route to `/mol:fix` / `/mol:refactor` / supersede. Never ignore, baseline-away, or land the feature on top of known rot.
 
 **Chain / batch:** if `$ARGUMENTS` matches a chain prefix with ≥2 specs (`<prefix>-NN-*` under `$META.specs_path`), **forward immediately to `/mol:impl-all <prefix>`** and exit. Prefer `/mol:impl-all` as the default user-facing implement command for multi-spec work.
 
@@ -72,11 +74,11 @@ For each unchecked task, in order:
 
 ### 2a. TDD (RED)
 
-First **Write failing tests** task → delegate to `tester` agent. Required categories: happy path, edge cases, immutability, domain validation (if `$META.science.required`). Run `$META.build.test_single`; confirm red. **Tick immediately.**
+First **Write failing tests** task → delegate to `tester` agent (write-mode). Unit tests **only** under `tests/`, path mirroring `src/` (`src/foo/boo.py` → `tests/test_foo/test_boo.py`), types mirrored (`FooClass` → `TestFooClass`), **single-function** tests — no e2e under `tests/`. Categories: basics, edge cases, immutability, domain validation (if `$META.science.required`) with hard-coded goldens. Run `$META.build.test_single`; confirm red. **Tick immediately.**
 
 ### 2b. Implement (GREEN)
 
-Task targets `regressions/` (the spec's end-to-end regression example) → it is a test artifact: delegate to `tester` (write-mode, § Regression examples in its prompt), run the example standalone, tick on pass. `implementer` never writes it.
+Task targets `regressions/` (public-API regression example) → test artifact only: delegate to `tester` (write-mode, § Regression examples). Must hard-code reference values (offline third-party capture if needed — **no** live third-party imports/subprocesses). Run standalone, tick on pass. `implementer` never writes it.
 
 For each remaining task:
 1. Delegate to `implementer` agent with: spec path, the task line, the RED test reference from 2a (command in `$META.build.test_single` form), the spec's Files section as scope, and the layer from 1d.
@@ -92,15 +94,38 @@ MEDIUM/LARGE: after impl tasks, re-delegate to `architect` for post-impl layer c
 
 ---
 
-## 3. Verify & simplify
+## 3. Verify, simplify, docs
 
-Run in parallel: `$META.build.check` + `$META.build.test` (full suite) + the spec's `regressions/` example(s) standalone. A failing regression example blocks finalize exactly like a failing test — the feature is not delivered until the end-to-end example reproduces its reference values. MEDIUM/LARGE: delegate to `documenter` for docstrings per `$META.doc.style`.
+### 3a. Verify
+
+Run in parallel: `$META.build.check` + `$META.build.test` (full suite) + the spec's `regressions/` example(s) standalone. A failing regression blocks finalize exactly like a failing unit test — the feature is not delivered until the regression reproduces its **hard-coded** reference values.
+
+### 3b. Simplify
 
 Invoke `/mol:simplify` on touched files. **Mandatory.** `/mol:simplify` decides: delete legacy (`experimental`) / shim (`stable`) / migration-note (`beta`) / leave (`maintenance`). Runs its own build/test gate; reverts on regression.
 
 If revert → leave `in-progress`, surface trigger, attempt one `/mol:fix` cycle on the simplify regression; still bad → stop hard (resume via 1c on re-run).
 
 If "Hygiene cleanup" task exists → tick it; else add one line recording simplify ran clean.
+
+### 3c. Docs Mode A (public surface)
+
+After simplify succeeds, decide whether public API documentation is owed:
+
+**Public-surface heuristic** (any one → docs owed):
+
+- scope was MEDIUM or LARGE, or
+- touched production files add/change **exported** symbols — e.g. Python names in `__all__` or module-level public classes/functions (no leading `_`); Rust `pub` items in `lib.rs` / `mod` re-exports; TS/JS `export` at package entry; similar for other languages in `$META.language`.
+
+When owed:
+
+1. If `$META.doc.style` (or `doc:` block) is missing → one-line skip (`docs Mode A skipped — no mol_project.doc.style`) and continue to § 4.
+2. Else **auto-invoke `/mol:docs` Mode A** on the touched public paths (Skill tool / read-and-execute `../docs/SKILL.md`). Never Mode B.
+3. Docs applies docstring/comment fixes only; if it reports blockers that need code behavior changes → surface and continue finalize (do not block close on tutorial-grade polish).
+
+When not owed → one-line skip (`docs Mode A skipped — no public surface in diff`).
+
+Do **not** inline-delegate to `documenter` here — `/mol:docs` owns the audit+apply contract.
 
 ---
 

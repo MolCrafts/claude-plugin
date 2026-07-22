@@ -32,6 +32,16 @@ molcrafts-harness/
 │   │   │   └── stage-policy.md       # mol_project.stage behavior matrix
 │   │   ├── skills/                   # shared Claude/Codex skills + one CODEX.md runtime adapter
 │   │   └── agents/                   # one .md per agent (incl. librarian, implementer, spec-writer)
+│   ├── molexp/                       # molexp data-workspace skills (adopt-workspace)
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── .codex-plugin/plugin.json
+│   │   ├── README.md
+│   │   └── skills/
+│   ├── molq/                         # molq job lifecycle via molmcp (jobs/submit/cancel)
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── .codex-plugin/plugin.json
+│   │   ├── README.md
+│   │   └── skills/
 │   └── mol-plugin/                   # marketplace-maintenance skills (counts live in manifests)
 │       ├── .claude-plugin/plugin.json
 │       ├── .codex-plugin/plugin.json
@@ -47,8 +57,10 @@ molcrafts-harness/
 
 | Plugin | Purpose |
 |---|---|
-| [`mol`](plugins/mol/README.md) | Day-to-day project work, organized around the planner→generator→evaluator harness pattern: `/mol:bootstrap` (harness lifecycle — initialize, audit, repair) → `/mol:spec` (planner — self-validates spec quality and negotiates the binding `<slug>.acceptance.md` contract, with each `ac-*` carrying a `status: pending → verified / failed` ledger) → `/mol:impl` (generator — refuses without both files; parks at `status: code-complete` until runtime evaluators verify their criteria) → `/mol:review [--axis=<name>]` (unified static evaluator; aggregates 10 single-axis reviewers via the `reviewer` agent) → `/mol:web` (runtime UI evaluator; uses whatever browser-automation MCP you installed). Plus `/mol:fix`, `/mol:refactor`, `/mol:simplify` (apply janitor hygiene + enforce the language-canonical toolchain trio: ruff + ty / biome + tsc / cargo fmt + clippy + cargo check), `/mol:ship`, git workflow chain, …. Adapts to each project via `mol_project:` frontmatter. |
-| [`mol-plugin`](plugins/mol-plugin/README.md) | Maintaining this marketplace: scaffold skills, unified `/mol-plugin:check` (structure + content + install smoke), and cut releases. |
+| [`mol`](plugins/mol/README.md) | Day-to-day **code** project work (planner→generator→evaluator harness): bootstrap, spec, impl, review, git chain, …. Adapts via `mol_project:` frontmatter. |
+| [`molexp`](plugins/molexp/README.md) | **Experiment data** workspace tooling: `/molexp:adopt-workspace` lifts legacy result folders into molexp's Workspace→Project→Experiment→Run layout. |
+| [`molq`](plugins/molq/README.md) | **Job queue** via molmcp: `/molq:jobs` (list/status/logs/queue), `/molq:submit`, `/molq:cancel` (submit/cancel need `MOLMCP_MOLQ_SUBMIT=1`). |
+| [`mol-plugin`](plugins/mol-plugin/README.md) | Maintaining this marketplace: scaffold skills, unified `/mol-plugin:check`, and cut releases. |
 
 ## Install
 
@@ -57,6 +69,8 @@ molcrafts-harness/
 ```
 /plugin marketplace add https://github.com/MolCrafts/molcrafts-harness
 /plugin install mol@molcrafts
+/plugin install molexp@molcrafts   # optional — experiment data workspaces
+/plugin install molq@molcrafts     # optional — job queue via molmcp
 ```
 
 `mol-plugin` is only needed if you are developing the plugins
