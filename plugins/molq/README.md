@@ -10,11 +10,13 @@ molmcp MolqProvider
 
 ## Skills
 
-| Skill | What |
-|---|---|
-| `/molq:jobs [list\|get\|logs\|destinations\|queue] …` | Read-only dashboard: store jobs, status, log tails, destinations, live queue |
-| `/molq:submit <argv…> [resources…]` | Submit one job (needs `MOLMCP_MOLQ_SUBMIT=1`); does not wait |
-| `/molq:cancel <job_id>` | Cancel one job (same opt-in) |
+| Skill | What | Free-form |
+|---|---|---|
+| `/molq:jobs …` | Read-only: list/get/logs/destinations/queue | 查作业 / squeue / 看日志 / job status — **agent may self-trigger** when it needs queue truth |
+| `/molq:submit …` | Submit one job (`MOLMCP_MOLQ_SUBMIT=1`); no wait | 提交到服务器 / 丢到集群 / sbatch — **slash optional** when intent is clear |
+| `/molq:cancel <job_id>` | Cancel one job (same opt-in) | 取消作业 / scancel |
+
+Agents may also call molmcp tools **directly** (`list_queue`, `submit_job`, …) without typing a slash — skills define the procedure and safety gates.
 
 ## Install
 

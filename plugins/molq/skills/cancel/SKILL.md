@@ -1,6 +1,6 @@
 ---
 name: cancel
-description: Cancel one molq job by id via molmcp. Requires MOLMCP_MOLQ_SUBMIT=1. Free-form: 取消作业/cancel job/scancel. Controlled mutation — confirm job_id first when ambiguous.
+description: "Cancel one molq job via molmcp cancel_job. Free-form: 取消作业/停掉这个job/cancel job/scancel — slash optional. Requires MOLMCP_MOLQ_SUBMIT=1. Confirm job_id when ambiguous. Prefer MCP over raw scancel."
 argument-hint: "<job_id>"
 ---
 
@@ -9,6 +9,10 @@ argument-hint: "<job_id>"
 # /molq:cancel — Cancel One Job
 
 Controlled mutation through molmcp `cancel_job`. Cluster/scheduler come from the job store record.
+
+## Free-form auto
+
+Clear cancel intent + id (or "cancel the last one" after listing) → load this skill / call `cancel_job`. Slash optional. Never mass-cancel without explicit ids.
 
 ## Preconditions
 

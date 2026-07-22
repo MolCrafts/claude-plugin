@@ -1,6 +1,6 @@
 ---
 name: submit
-description: Submit one molq job via molmcp (argv list, scheduler local/slurm/pbs/lsf). Requires MOLMCP_MOLQ_SUBMIT=1. Free-form: 提交作业/submit job/sbatch via molq. Does not wait — poll with /molq:jobs. Controlled mutation.
+description: "Submit one job via molmcp molq submit_job. MUST load when user intent is clear: 提交到服务器/丢到集群/sbatch/提交作业/run this on the cluster/submit to slurm/HPC/服务器上算 — slash optional. Requires MOLMCP_MOLQ_SUBMIT=1. argv as string list; no shell string. Does not wait — poll /molq:jobs. Prefer MCP over raw sbatch when tools exist."
 argument-hint: "<argv…> [--scheduler=local|slurm|pbs|lsf] [--cluster=] [--profile=] [--cpus=] [--mem=] [--time=] [--partition=] [--gpus=] [--name=] [--workdir=]"
 ---
 
@@ -9,6 +9,12 @@ argument-hint: "<argv…> [--scheduler=local|slurm|pbs|lsf] [--cluster=] [--prof
 # /molq:submit — Submit One Job
 
 Controlled mutation through molmcp `submit_job`. **Does not block-wait** — use `/molq:jobs get|logs` to poll.
+
+## Free-form auto (tier A when intent is clear)
+
+Phrases like「把 train.py 丢到服务器算」「submit this to the cluster」「sbatch 一下」→ load this skill (or call `submit_job` following the same rules). **Slash not required.**
+
+Still need: concrete command (or enough to build argv) + opt-in env. Vague "maybe run something later" → do **not** submit.
 
 ## Preconditions
 

@@ -1,6 +1,6 @@
 ---
 name: jobs
-description: molq job dashboard via molmcp — list jobs, get status, tail logs, list destinations and live scheduler queues. Free-form when the user says 查作业/job status/看日志/queue/squeue/list jobs. Read-only. Requires molmcp molq provider + molcrafts-molq.
+description: "molq/molmcp read dashboard. MUST load (or call molq MCP tools) when the user or the plan needs: 查作业/作业状态/看日志/队列/squeue/qstat/bjobs/list jobs/job status/check the queue/pull squeue/is my job running/where can I submit — do NOT raw-shell squeue/scancel when molmcp molq tools exist. Modes list|get|logs|destinations|queue. Read-only; never submit/cancel."
 argument-hint: "[list|get|logs|destinations|queue] [job_id|options…]"
 ---
 
@@ -9,6 +9,12 @@ argument-hint: "[list|get|logs|destinations|queue] [job_id|options…]"
 # /molq:jobs — Job Dashboard (read-only)
 
 Drive **molq** job lifecycle **read** tools exposed by molmcp. Does **not** submit or cancel (use `/molq:submit`, `/molq:cancel`).
+
+## Free-form auto (tier A/B)
+
+When conversation implies a queue/dashboard need — including the **agent deciding** "I should check squeue / job status / logs" mid-task — load this skill **or** call the molmcp molq tools below directly. Prefer MCP over `ssh … squeue` / bare `squeue`.
+
+Slash `/molq:jobs` is optional.
 
 ## MCP tools
 
@@ -65,5 +71,6 @@ Human-readable table or short cards: job_id, state, cluster, command (if present
 ## Guardrails
 
 - **Read-only.** Never call `submit_job` / `cancel_job` from this skill.
-- Do not shell out to `squeue` when MCP tools work — prefer MCP.
+- Prefer molmcp over raw `squeue`/`qstat`/`bjobs` when tools are connected.
 - Never invent job ids or log text; tool miss → report miss.
+- Agent self-triggers OK: if you need queue truth to continue a plan, call `list_queue` / `list_jobs` without waiting for a slash command.
